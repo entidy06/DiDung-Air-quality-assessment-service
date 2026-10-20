@@ -1,34 +1,186 @@
-# DiDung
+# DiDung — Hỗ trợ quyết định khi ra ngoài tại TP. Hồ Chí Minh
 
-DiDung là dự án web theo dõi và dự báo chất lượng không khí tại TP.HCM, giúp người dùng xem tình trạng AQI theo khu vực và nhận cảnh báo theo ngưỡng cá nhân.
+**DiDung** là đồ án môn **Introduction to Software Engineering (HCMUS)**, định hướng xây dựng ứng dụng web responsive giúp người dùng theo dõi chất lượng không khí (PM2.5/AQI), thời tiết và — khi dữ liệu được kiểm chứng — nguy cơ ngập do mưa, triều cường tại TP.HCM. Hệ thống hướng tới việc hỗ trợ quyết định khi ra ngoài bằng dự báo ngắn hạn, hiển thị nguồn dữ liệu và các cảnh báo theo ngưỡng cá nhân.
 
-Dự án được thực hiện trong khuôn khổ đồ án môn Software Engineering, với thời gian dự kiến 8–10 tuần.
+> **Trạng thái dự án:** đang trong giai đoạn đề xuất/kế hoạch và chuẩn bị yêu cầu – thiết kế. Repository hiện chủ yếu chứa tài liệu; **chưa có bản ứng dụng được xác nhận là đã triển khai**. Công nghệ, chức năng, deadline và phạm vi dưới đây là kế hoạch, trừ khi có ghi chú khác.
+>
+> **Lưu ý về scope:** PA0 ban đầu coi dự báo mưa và cảnh báo ngập/triều cường là Must-have. Bản dự thảo PA1 đề xuất tập trung MVP vào PM2.5/AQI và đưa cảnh báo ngập ra khỏi MVP do chưa xác thực được nguồn dữ liệu. **Đây là thay đổi cần được nhóm và TA xác nhận**, không phải quyết định đã được phê duyệt. Xem [Quản lý phạm vi](#quản-lý-phạm-vi-và-quyết-định-chưa-chốt).
 
-## Tính năng dự kiến
+## 1. Bài toán và người dùng
 
-- Thu thập và lưu dữ liệu PM2.5 cùng dữ liệu thời tiết.
-- Dự báo PM2.5 vài giờ tới và quy đổi sang AQI thành phần PM2.5 theo thang đã chọn.
-- Hiển thị bản đồ, biểu đồ lịch sử và dự báo.
-- Đăng ký, đăng nhập và thiết lập khu vực, ngưỡng cảnh báo cá nhân.
-- Hiển thị cảnh báo trên web và lưu vào trung tâm thông báo.
-- Trang quản trị theo dõi pipeline, lỗi dữ liệu và sai số dự báo.
+Người dân TP.HCM thường phải kiểm tra nhiều nguồn khác nhau khi muốn biết chất lượng không khí, mưa và rủi ro ngập trước khi di chuyển. Các nguồn dữ liệu có thể khác nhau về vị trí đo, độ phân giải, thời gian cập nhật và mức độ tin cậy.
 
-## Nguồn dữ liệu dự kiến
+DiDung hướng tới:
+- **Người dân và người đi làm/đi học:** xem thông tin theo khu vực và xu hướng vài giờ tới.
+- **Người thường xuyên hoạt động ngoài trời hoặc nhạy cảm với ô nhiễm:** thiết lập ngưỡng cảnh báo cá nhân.
+- **Người sống tại khu vực có nguy cơ ngập:** nhận thông tin rủi ro **theo khu vực và điểm ngập đã được kiểm chứng**, nếu chức năng này được duyệt và nguồn dữ liệu khả thi.
+- **Nhóm vận hành:** theo dõi chất lượng nguồn dữ liệu và lỗi đồng bộ (chức năng quản trị ưu tiên sau MVP).
 
-- [OpenAQ](https://docs.openaq.org/): dữ liệu PM2.5 từ các trạm quan trắc, tùy mức độ bao phủ thực tế.
-- [Open-Meteo Air Quality](https://open-meteo.com/en/docs/air-quality-api): dữ liệu chất lượng không khí từ mô hình để bổ sung khi thiếu trạm.
-- [Open-Meteo Weather](https://open-meteo.com/en/docs): mưa, độ ẩm, gió và các đặc trưng khí tượng hỗ trợ dự báo.
+Sản phẩm chỉ cung cấp thông tin hỗ trợ quyết định, **không đưa ra lời khuyên y tế**, không hứa hẹn dự đoán ngập từng tuyến đường hoặc độ chính xác AQI đến từng phường khi không có dữ liệu phù hợp.
 
-Mưa chỉ là đầu vào của mô hình chất lượng không khí; dự án không dự báo hoặc cảnh báo mưa riêng.
+## 2. Phạm vi và tính năng dự kiến
 
-## Hướng triển khai
+Bảng này phân biệt **phạm vi đã trình bày trong PA0** với **định hướng thu gọn của bản dự thảo PA1**. Mọi thay đổi Must-have cần có quyết định/biên bản được duyệt trước khi dùng làm baseline của PA2.
 
-1. Thu thập định kỳ, kiểm tra dữ liệu và lưu vào cơ sở dữ liệu.
-2. Thử mô hình đơn giản như Random Forest, so sánh với baseline giữ nguyên PM2.5 gần nhất.
-3. Đánh giá theo thời gian bằng MAE/RMSE và so sánh mô hình có/không có đặc trưng mưa.
-4. Hiển thị rõ nguồn, thời điểm cập nhật và giới hạn dữ liệu theo khu vực.
-5. Xử lý dữ liệu cũ, API gián đoạn và thông báo trùng lặp.
+| Nhóm chức năng | Theo PA0 | Định hướng trong bản dự thảo PA1 | Ghi chú |
+| --- | --- | --- | --- |
+| Thu thập, kiểm tra và lưu dữ liệu môi trường | Must-have | Must-have | PM2.5/AQI, dữ liệu thời tiết, nguồn và thời điểm cập nhật; nguồn triều cường chỉ khi xác thực |
+| Dự báo ngắn hạn | Must-have: **AQI và lượng mưa** | Must-have: tập trung PM2.5/AQI | **Cần xác nhận** việc thu hẹp phần dự báo mưa |
+| Cảnh báo triều cường/ngập và hotspot | **Must-have** | Đề xuất **chưa đưa vào MVP** | **Chờ nhóm/TA phê duyệt scope change** và xác minh nguồn triều |
+| Tài khoản, lựa chọn khu vực, ngưỡng cảnh báo | Must-have | Must-have | Có giới hạn theo địa điểm được hệ thống hỗ trợ |
+| Banner cảnh báo và trung tâm thông báo trong ứng dụng | Must-have | Must-have | Theo ngưỡng, tránh tạo thông báo trùng |
+| Dashboard bản đồ, lịch sử và dự báo | Must-have | Must-have | Phải thể hiện nguồn, timestamp và trạng thái thiếu dữ liệu |
+| Lời khuyên tổng quát, giám sát quản trị, push notification, báo cáo ngập từ người dùng | Không bắt buộc | Should/Could/Won't tùy chức năng | Chỉ thực hiện sau Must-have và khi đủ nguồn lực |
 
-## Tài liệu đồ án
+**Nguyên tắc triển khai:** ưu tiên tính năng Must-have đã được duyệt; tính năng mở rộng không được mặc định là đã triển khai. Khi dữ liệu trạm không đủ, hiển thị rõ dữ liệu **đo tại trạm** so với dữ liệu **ước lượng/dự báo từ mô hình**; không biến giá trị mô hình thành tuyên bố đo đạc tại địa chỉ cụ thể.
 
-Các tài liệu dự kiến gồm đặc tả yêu cầu, thiết kế hệ thống, báo cáo hằng tuần, kết quả đánh giá mô hình và báo cáo kiểm thử.
+## 3. Dữ liệu và công nghệ dự kiến
+
+### Nguồn dữ liệu đang xem xét
+
+- [OpenAQ](https://docs.openaq.org/): số đo quan trắc (ví dụ PM2.5), tùy trạm thực sự hiện diện và chất lượng dữ liệu tại TP.HCM.
+- [Open-Meteo Weather](https://open-meteo.com/en/docs): dữ liệu thời tiết và dự báo, bao gồm mưa, gió, độ ẩm; độ phân giải/phạm vi phải được kiểm tra.
+- [Open-Meteo Air Quality](https://open-meteo.com/en/docs/air-quality-api): sản phẩm chất lượng không khí từ **mô hình**, không đồng nhất với số đo trạm.
+- Bảng triều/nguồn quan trắc triều và thông tin điểm ngập từ các nguồn công khai: **chưa xác thực tính sẵn có, quyền sử dụng và độ tin cậy**. Không tuyên bố cảnh báo ngập là tính năng đang chạy.
+- Các địa điểm được hỗ trợ sẽ được xác định bằng khảo sát độ phủ dữ liệu trong PA2.
+
+### Kiến trúc đề xuất (chưa phải hệ thống đã hoàn thành)
+
+```text
+OpenAQ / Open-Meteo / nguồn được duyệt
+                 |
+       Scheduled ingestion
+                 |
+        Validate + normalize
+                 |
+       PostgreSQL (proposed)
+                 |
+    Baseline/forecast + alert rules
+                 |
+        FastAPI service (proposed)
+                 |
+  React web dashboard + map/charts
+```
+
+| Thành phần | Lựa chọn đang đề xuất | Trạng thái |
+| --- | --- | --- |
+| Frontend | React, Leaflet, Chart.js | Đang đề xuất |
+| Backend/API | Python FastAPI | Đang đề xuất |
+| Database | PostgreSQL | Đang đề xuất |
+| Jobs và xử lý dữ liệu | Cron/APScheduler, pandas; scikit-learn nếu phù hợp | Đang đề xuất |
+| Triển khai | Docker, Render/Railway hoặc môi trường tương đương | Cần kiểm tra quota và tính khả thi |
+| Kiểm thử/CI | pytest, Playwright, GitHub Actions | **Kế hoạch**, chưa có bằng chứng workflow chạy trên repo |
+
+Dự báo sẽ ưu tiên **baseline minh bạch và có kiểm chứng**; các mô hình ML (ví dụ mô hình cây) chỉ được sử dụng khi phù hợp dữ liệu lịch sử và tốt hơn baseline trên tập đánh giá tách theo thời gian. Các chỉ số như MAE/RMSE phải được báo cáo từ kết quả thực tế, không suy đoán.
+
+## 4. Thành viên và trách nhiệm
+
+Nhóm DiDung gồm bốn thành viên:
+
+| Thành viên | Vai trò chính | Trách nhiệm PA1 |
+| --- | --- | --- |
+| **Trương Lê Trung Hiếu** | Project Manager (PM) | Proposed Solution; điều phối, tích hợp và review báo cáo |
+| **Trần Minh Tiến** | Business Analyst (BA) | Vision & Scope; tổng hợp đóng góp và AI Usage Log |
+| **Nguyễn Thành Đạt** | Designer | Project Plan (WBS, estimation, Gantt, milestones, costs); UI/UX và biểu đồ |
+| **Võ Đình Cao Minh Hào** | Tester | Risk Register; Tools & Collaboration; QA; Weekly Status Report |
+
+**Vai trò Developer cho các giai đoạn lập trình chưa được chốt.** Người điều phối cần xác nhận người phụ trách chính, backup và giờ làm việc thực tế trước khi chốt Gantt/PA2. Không tự coi một thành viên đã nhận nhiệm vụ lập trình chỉ từ tên vai trò trong bản nháp cũ.
+
+## 5. Lộ trình và theo dõi công việc
+
+- [Jira DiDung – Task Board](https://ntdat2428.atlassian.net/jira/software/projects/DID/boards/2)
+- [Jira DiDung – Timeline](https://ntdat2428.atlassian.net/jira/software/projects/DID/boards/2/timeline)
+- [PA1 – Project Proposal & Plan (DID-1)](https://ntdat2428.atlassian.net/browse/DID-1)
+- [Section 6 – Minh chứng quy trình làm việc (DID-26)](https://ntdat2428.atlassian.net/browse/DID-26)
+
+| Giai đoạn | Mốc kế hoạch tham khảo | Sản phẩm/tiêu chí hoàn thành |
+| --- | --- | --- |
+| PA0 – Idea & Team Contract | Đã có tài liệu trong repo | Ý tưởng, phạm vi ban đầu, team contract |
+| PA1 – Project Proposal & Plan | Tuần 3; các task Jira đang cập nhật | Vision, Proposed Solution, WBS/effort/Gantt, risks, tools, AI log; bản PDF và file nguồn được review/nộp |
+| PA2 – Requirements | Tuần 4–5 (dự kiến) | SRS, FR/NFR, use cases, acceptance criteria, traceability; quyết định scope/data feasibility |
+| PA3 – Design | Tuần 6–7 (dự kiến) | Kiến trúc, data model, UI flows, prototype, review evidence |
+| PA4 – Test Planning | Tuần 8 (dự kiến) | Test plan, test cases, môi trường, yêu cầu bao phủ |
+| PA5 – Implementation/Test/Deployment | Tuần 9–10 (dự kiến) | Các Must-have đã duyệt hoạt động, kết quả kiểm thử và deployment |
+| Final Demo | Tuần 11 (dự kiến) | Slide, live demo, tổng kết có minh chứng |
+
+**Ngày/tuần ở trên chỉ mang tính lập kế hoạch. Deadline và hướng dẫn nộp chính thức trên Moodle/TA luôn được ưu tiên.** Chỉ chuyển Jira issue sang Done khi đã có sản phẩm, review phù hợp và đường dẫn minh chứng.
+
+## 6. Quy trình làm việc nhóm và minh chứng
+
+### Họp và báo cáo
+
+- Kênh thảo luận nhóm: **Discord**.
+- Lịch họp nhóm đã được chuyển sang **thứ Ba hằng tuần**; giờ cố định cần xác nhận lại với cả nhóm. Lịch họp cụ thể nằm trong Jira.
+- **Weekly Status Report:** kế hoạch nhóm là **Chủ nhật trước 23:59 (GMT+7)**; khi thay đổi hoặc nộp trễ cần ghi quyết định và thời gian thực tế. Người viết: Hào; PM Hiếu review.
+- Sau buổi họp, tạo **Meeting Minutes** ghi người có mặt thực tế, quyết định, blockers, công việc tiếp theo, owner và deadline.
+- Các thay đổi về lịch, người phụ trách, scope được lưu trong decision/change log thay vì sửa lại lịch sử.
+
+### Quy trình giao việc và review
+
+1. **Tạo Jira issue**: mục tiêu, owner, deadline, checklist và Definition of Done.
+2. **Thực hiện**: dùng tài liệu có lịch sử phiên bản hoặc branch Git riêng; đính kèm link thực tế vào Jira.
+3. **Review**: người khác góp ý trong PR/tài liệu/Jira; ghi nội dung cần sửa và người chịu trách nhiệm.
+4. **Sửa và xác nhận**: cập nhật bản mới, lưu review result; không tự ghi Approved nếu chưa có review.
+5. **Bàn giao và báo cáo**: liên kết Jira ↔ WBS ↔ commit/PR ↔ tài liệu ↔ Weekly Report.
+
+Mẫu thông tin minh chứng ngắn trong Jira: **Deliverable | URL | Version/commit | Author | Reviewer | Feedback | Changes made | Review status | WBS ID**.
+
+### Quy ước Git được đề xuất
+
+- Làm việc trên branch có tên rõ ràng, ví dụ `docs/DID-28-readme`, `feature/DID-xx-dashboard`.
+- Commit có ý nghĩa, kèm Jira key khi phù hợp, ví dụ `docs(DID-28): update team README`.
+- Tạo **Pull Request về `main`** và mời ít nhất một thành viên khác review; chỉ merge sau khi giải quyết nhận xét quan trọng.
+- Không đưa `.env`, token, mật khẩu, dữ liệu nhạy cảm lên repository. `.gitignore`, branch protection và CI phải được kiểm tra/thiết lập trước khi tuyên bố hoàn tất.
+- Không backdate commits, meeting minutes hoặc AI logs để tạo minh chứng giả.
+
+### Minh chứng cần lưu
+
+| Hạng mục | Minh chứng ưu tiên |
+| --- | --- |
+| Jira | Issue link, lịch sử trạng thái, assignee, hạn, comment review |
+| Thiết kế/tài liệu | File editable, version history, review comments, PR |
+| Code | Commit, PR, CI/test logs, lỗi và sửa lỗi |
+| Họp | Meeting Minutes, attendance thực tế, quyết định, Jira action items |
+| Báo cáo tuần | File tuần tương ứng, timestamp commit, liên kết task |
+| AI | Công cụ, mục đích, cách kiểm chứng/chỉnh sửa thực tế; no-use khi không dùng |
+
+## 7. Cấu trúc repository
+
+```text
+.
+├── README.md
+├── pa/
+│   ├── PA0/               # PA0 PDF đã lưu
+│   ├── PA1/               # Chỗ lưu PA1 PDF + editable source khi được review
+│   ├── PA2/
+│   ├── PA3/
+│   ├── PA4/
+│   └── PA5/
+└── docs/
+    ├── requirements/     # Dự kiến: SRS, use cases, acceptance criteria
+    ├── design/           # Dự kiến: C4/UML, UI/UX, ADRs
+    ├── test/             # Dự kiến: test plan, cases, reports
+    ├── management/
+    │   ├── weekly/       # Hiện có W2-status.docx
+    │   ├── meetings/     # Chưa có trên main; cần tạo khi có minutes
+    │   └── evidence/     # Chưa có trên main; kế hoạch Evidence Index
+    └── ai-usage/
+        └── week2/        # Hiện có ntdat-logs.md
+```
+
+Trạng thái thực tế ở thời điểm cập nhật README: `/pa/PA1/` chưa có PDF/source trên `main`; `/src/` và GitHub Actions workflow chưa hiện diện. **Không được xem kế hoạch này là bằng chứng ứng dụng hoặc CI đã chạy.**
+
+### Phát triển trên máy cá nhân
+
+Repository chưa công bố mã nguồn ứng dụng và quy trình chạy ổn định nên **chưa có lệnh cài đặt/chạy thử chính thức**. Khi nhóm bổ sung code, cần cập nhật README bằng các bước thiết lập môi trường, file `.env.example` (không chứa secrets), migrations, lệnh chạy backend/frontend, seed test data và test commands có thể tái hiện.
+
+## 8. Tài liệu và liên kết
+
+- [PA0 – Project Idea & Team Contract](pa/PA0/10-PA0.pdf)
+- [Báo cáo tuần 2](docs/management/weekly/W2-status.docx)
+- [AI Usage Log tuần 2](docs/ai-usage/week2/ntdat-logs.md)
+- [Thư mục các bài PA](pa/)
+- [Jira board và phân công](https://ntdat2428.atlassian.net/jira/software/projects/DID/boards/2)
+- [Project roadmap](https://ntdat2428.atlassian.net/jira/software/projects/DID/boards/2/timeline)
+
+> README giúp định hướng dự án và minh bạch trạng thái, **không thay thế** PA0/PA1, SRS chính thức, quyết định thay đổi scope hay bằng chứng nộp bài. Các tính năng/giá trị chưa có minh chứng phải được ghi là *proposed*, *planned* hoặc *pending verification*.
