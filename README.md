@@ -44,32 +44,39 @@ Bảng này phân biệt **phạm vi đã trình bày trong PA0** với **địn
 - Bảng triều/nguồn quan trắc triều và thông tin điểm ngập từ các nguồn công khai: **chưa xác thực tính sẵn có, quyền sử dụng và độ tin cậy**. Không tuyên bố cảnh báo ngập là tính năng đang chạy.
 - Các địa điểm được hỗ trợ sẽ được xác định bằng khảo sát độ phủ dữ liệu trong PA2.
 
-### Kiến trúc đề xuất (chưa phải hệ thống đã hoàn thành)
+### Kiến trúc đề xuất theo PA1 mới (chưa triển khai)
+
+Phần **3.2 Technology Stack** của [PA1 đang biên tập trên Google Drive](https://docs.google.com/document/d/1ViqEjQ4qF7A6XEkFdJJiVY0neLwfp7jm/edit?usp=drivesdk&ouid=112474567247972889222&rtpof=true&sd=true) đã chuyển sang **Next.js + shadcn/ui, Supabase và Vercel**. Đây là stack **được ghi trong bản PA1 mới**, chưa phải hệ thống được chứng minh đang hoạt động.
 
 ```text
 OpenAQ / Open-Meteo / nguồn được duyệt
-                 |
-       Scheduled ingestion
-                 |
-        Validate + normalize
-                 |
-       PostgreSQL (proposed)
-                 |
-    Baseline/forecast + alert rules
-                 |
-        FastAPI service (proposed)
-                 |
-  React web dashboard + map/charts
+                  │
+     Đồng bộ định kỳ + chuẩn hóa dữ liệu
+     (cơ chế gọi API ngoài cần technical spike)
+                  │
+       Supabase Cloud (PostgreSQL)
+         - dữ liệu đo và dữ liệu mô hình
+         - dữ liệu người dùng và ngưỡng cảnh báo
+         - kết quả dự báo / thông báo
+                  │
+     Next.js (API/backend + web frontend)
+              + shadcn/ui
+                  │
+     Responsive dashboard / bản đồ / biểu đồ
+                  │
+             Vercel hosting
 ```
 
-| Thành phần | Lựa chọn đang đề xuất | Trạng thái |
+| Thành phần | Lựa chọn trong PA1 mới | Trạng thái |
 | --- | --- | --- |
-| Frontend | React, Leaflet, Chart.js | Đang đề xuất |
-| Backend/API | Python FastAPI | Đang đề xuất |
-| Database | PostgreSQL | Đang đề xuất |
-| Jobs và xử lý dữ liệu | Cron/APScheduler, pandas; scikit-learn nếu phù hợp | Đang đề xuất |
-| Triển khai | Docker, Render/Railway hoặc môi trường tương đương | Cần kiểm tra quota và tính khả thi |
-| Kiểm thử/CI | pytest, Playwright, GitHub Actions | **Kế hoạch**, chưa có bằng chứng workflow chạy trên repo |
+| Frontend | **Next.js + shadcn/ui** (nền tảng React) | Theo PA1 bản cập nhật; chờ kiểm chứng triển khai |
+| Backend/API | **Next.js** (API/server-side) | Theo PA1; cách triển khai route/server actions cần thiết kế |
+| Database | **Supabase** (managed PostgreSQL) | Theo PA1; chưa có bằng chứng schema/migration trên repository |
+| Scheduler / xử lý định kỳ | **Supabase pg_cron** | Theo PA1; cần kiểm chứng luồng lấy dữ liệu API ngoài, retry và giới hạn quota |
+| Hosting / deployment | **Vercel (Next.js) + Supabase Cloud** | Đề xuất; kiểm tra cấu hình, free-tier và giới hạn runtime trước khi chốt |
+| Testing & CI | **Vitest**, **Playwright** (ứng viên), **GitHub Actions** (dự kiến) | Chưa coi là đã thiết lập khi chưa có test/workflow runs |
+
+**Điểm cần đồng bộ trong chính tài liệu PA1:** Mục **3.3 Hardware and Operating Environment** vẫn nhắc đến Python/Docker và dịch vụ container riêng từ phương án cũ, trong khi **3.2 đã chuyển sang Next.js/Supabase/Vercel**. Nhóm cần cập nhật 3.3 và phần giải thích lý do chọn công nghệ để thống nhất trước khi khóa kiến trúc. README ưu tiên liệt kê đúng lựa chọn mới ở 3.2, không khẳng định những chi tiết triển khai chưa được thử nghiệm.
 
 Dự báo sẽ ưu tiên **baseline minh bạch và có kiểm chứng**; các mô hình ML (ví dụ mô hình cây) chỉ được sử dụng khi phù hợp dữ liệu lịch sử và tốt hơn baseline trên tập đánh giá tách theo thời gian. Các chỉ số như MAE/RMSE phải được báo cáo từ kết quả thực tế, không suy đoán.
 
@@ -96,21 +103,21 @@ Nhóm DiDung gồm bốn thành viên:
 | Giai đoạn | Mốc kế hoạch tham khảo | Sản phẩm/tiêu chí hoàn thành |
 | --- | --- | --- |
 | PA0 – Idea & Team Contract | Đã có tài liệu trong repo | Ý tưởng, phạm vi ban đầu, team contract |
-| PA1 – Project Proposal & Plan | Tuần 3; các task Jira đang cập nhật | Vision, Proposed Solution, WBS/effort/Gantt, risks, tools, AI log; bản PDF và file nguồn được review/nộp |
+| PA1 – Project Proposal & Plan | **W4 (19–25/10/2026), mốc đề xuất trong PA1 mới** | Vision, Proposed Solution, WBS/effort/Gantt, risks, tools, AI log; file nguồn/PDF, review và nộp bài chỉ xem là hoàn tất khi có minh chứng |
 | PA2 – Requirements | Tuần 4–5 (dự kiến) | SRS, FR/NFR, use cases, acceptance criteria, traceability; quyết định scope/data feasibility |
 | PA3 – Design | Tuần 6–7 (dự kiến) | Kiến trúc, data model, UI flows, prototype, review evidence |
 | PA4 – Test Planning | Tuần 8 (dự kiến) | Test plan, test cases, môi trường, yêu cầu bao phủ |
 | PA5 – Implementation/Test/Deployment | Tuần 9–10 (dự kiến) | Các Must-have đã duyệt hoạt động, kết quả kiểm thử và deployment |
 | Final Demo | Tuần 11 (dự kiến) | Slide, live demo, tổng kết có minh chứng |
 
-**Ngày/tuần ở trên chỉ mang tính lập kế hoạch. Deadline và hướng dẫn nộp chính thức trên Moodle/TA luôn được ưu tiên.** Chỉ chuyển Jira issue sang Done khi đã có sản phẩm, review phù hợp và đường dẫn minh chứng.
+**Ngày/tuần ở trên chỉ mang tính lập kế hoạch. Deadline và hướng dẫn nộp chính thức trên Moodle/TA luôn được ưu tiên.** Khung W4–W11 của PA1 bản mới dự tính **260 person-hours** với critical path ở cấp kế hoạch; các phân bổ này phụ thuộc việc chốt Developer và xác nhận capacity từng người. Chỉ chuyển Jira issue sang Done khi đã có sản phẩm, review phù hợp và đường dẫn minh chứng.
 
 ## 6. Quy trình làm việc nhóm và minh chứng
 
 ### Họp và báo cáo
 
 - Kênh thảo luận nhóm: **Discord**.
-- Lịch họp nhóm đã được chuyển sang **thứ Ba hằng tuần**; giờ cố định cần xác nhận lại với cả nhóm. Lịch họp cụ thể nằm trong Jira.
+- Lịch họp nhóm đã được chuyển sang **thứ Ba hằng tuần**; giờ cố định cần xác nhận lại với cả nhóm. Lịch họp cụ thể nằm trong Jira. **Lưu ý:** Section 5–6 của PA1 mới vẫn có một số dòng ghi checkpoint thứ Năm/Chủ nhật từ bản cũ; cần chỉnh đồng bộ sau khi nhóm xác nhận.
 - **Weekly Status Report:** kế hoạch nhóm là **Chủ nhật trước 23:59 (GMT+7)**; khi thay đổi hoặc nộp trễ cần ghi quyết định và thời gian thực tế. Người viết: Hào; PM Hiếu review.
 - Sau buổi họp, tạo **Meeting Minutes** ghi người có mặt thực tế, quyết định, blockers, công việc tiếp theo, owner và deadline.
 - Các thay đổi về lịch, người phụ trách, scope được lưu trong decision/change log thay vì sửa lại lịch sử.
@@ -177,6 +184,7 @@ Repository chưa công bố mã nguồn ứng dụng và quy trình chạy ổn 
 ## 8. Tài liệu và liên kết
 
 - [PA0 – Project Idea & Team Contract](pa/PA0/10-PA0.pdf)
+- [PA1 – Project Proposal & Plan (bản Word đang chỉnh sửa trên Google Drive)](https://docs.google.com/document/d/1ViqEjQ4qF7A6XEkFdJJiVY0neLwfp7jm/edit?usp=drivesdk&ouid=112474567247972889222&rtpof=true&sd=true) — **nguồn PA1 mới nhất được đối chiếu**; chưa có file PA1 trong nhánh `main` của GitHub
 - [Báo cáo tuần 2](docs/management/weekly/W2-status.docx)
 - [AI Usage Log tuần 2](docs/ai-usage/week2/ntdat-logs.md)
 - [Thư mục các bài PA](pa/)
