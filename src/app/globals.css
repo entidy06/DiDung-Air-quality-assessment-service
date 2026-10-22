@@ -1,0 +1,80 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Palette and Neumorphism rules: see design.md. Do not add colors outside it. */
+:root {
+  --brown: #6e3511;
+  --sage: #91ac67;
+  --olive: #597928;
+  --cream: #fcecd8;
+  --crimson: #8b2626;
+  --orange: #ef6905;
+  --butter: #f1e5a1;
+  --forest: #486c2f;
+
+  /* shadcn semantic tokens mapped onto the palette */
+  --background: var(--cream);
+  --foreground: var(--brown);
+  --card: var(--cream);
+  --card-foreground: var(--brown);
+  --primary: var(--olive);
+  --primary-foreground: var(--cream);
+  --secondary: var(--butter);
+  --secondary-foreground: var(--brown);
+  --muted: var(--butter);
+  --muted-foreground: var(--brown);
+  --accent: var(--orange);
+  --accent-foreground: var(--brown);
+  --destructive: var(--crimson);
+  --border: transparent;
+  --input: var(--cream);
+  --ring: var(--forest);
+  --radius: 1.25rem;
+
+  /* Neumorphic shadow tints derived from --cream */
+  --neu-light: #fff9f0;
+  --neu-dark: #d9c7ae;
+  --neu-raised: 8px 8px 16px var(--neu-dark), -8px -8px 16px var(--neu-light);
+  --neu-raised-sm: 4px 4px 8px var(--neu-dark), -4px -4px 8px var(--neu-light);
+  --neu-inset: inset 6px 6px 12px var(--neu-dark), inset -6px -6px 12px var(--neu-light);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sage: var(--sage);
+  --color-forest: var(--forest);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-sm: calc(var(--radius) - 8px);
+  --shadow-neu: var(--neu-raised);
+  --shadow-neu-sm: var(--neu-raised-sm);
+  --shadow-neu-inset: var(--neu-inset);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Lenis */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
