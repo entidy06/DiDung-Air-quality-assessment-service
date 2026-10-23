@@ -156,30 +156,48 @@ Mẫu thông tin minh chứng ngắn trong Jira: **Deliverable | URL | Version/c
 ```text
 .
 ├── README.md
+├── AGENTS.md              # Quy tắc bắt buộc cho AI agent; kiến trúc MVVM
+├── .github/workflows/     # CI: typecheck + lint + build (ci.yml)
+├── src/
+│   ├── app/               # routes (App Router)
+│   ├── components/        # ui/ (shadcn), providers/
+│   ├── lib/                # supabase clients, utils
+│   └── stores/            # Zustand
+├── supabase/migrations/   # migration DB có version (xem docs/specs)
 ├── pa/
 │   ├── PA0/               # PA0 PDF đã lưu
-│   ├── PA1/               # Chỗ lưu PA1 PDF + editable source khi được review
+│   ├── PA1/               # PA1 PDF đã lưu trên main
 │   ├── PA2/
 │   ├── PA3/
 │   ├── PA4/
 │   └── PA5/
 └── docs/
+    ├── specs/            # Spec kỹ thuật đã duyệt (schema, cron, seed data)
     ├── requirements/     # Dự kiến: SRS, use cases, acceptance criteria
     ├── design/           # Dự kiến: C4/UML, UI/UX, ADRs
     ├── test/             # Dự kiến: test plan, cases, reports
     ├── management/
-    │   ├── weekly/       # Hiện có W2-status.docx
+    │   ├── weekly/       # Hiện có W2/W3-status.docx
     │   ├── meetings/     # Chưa có trên main; cần tạo khi có minutes
-    │   └── evidence/     # Chưa có trên main; kế hoạch Evidence Index
+    │   └── evidence/     # Evidence Index + Decision Log
     └── ai-usage/
-        └── week2/        # Hiện có ntdat-logs.md
+        └── week2/, week3/
 ```
 
-Trạng thái thực tế ở thời điểm cập nhật README: `/pa/PA1/` chưa có PDF/source trên `main`; `/src/` và GitHub Actions workflow chưa hiện diện. **Không được xem kế hoạch này là bằng chứng ứng dụng hoặc CI đã chạy.**
+Trạng thái thực tế ở thời điểm cập nhật README: `src/` chạy được (`npm run dev`/`build` pass), CI (`.github/workflows/ci.yml`) đã thiết lập và chạy typecheck/lint/build trên push/PR — nhưng **CI chưa chạy test** (chưa có test suite, theo AGENTS.md §7 không tự viết test khi chưa được duyệt). Migration DB đã viết (`supabase/migrations/`) nhưng **chưa áp dụng lên Supabase project thật** — chỉ coi là đã triển khai sau khi có xác nhận `db push` thành công.
 
 ### Phát triển trên máy cá nhân
 
-Repository chưa công bố mã nguồn ứng dụng và quy trình chạy ổn định nên **chưa có lệnh cài đặt/chạy thử chính thức**. Khi nhóm bổ sung code, cần cập nhật README bằng các bước thiết lập môi trường, file `.env.example` (không chứa secrets), migrations, lệnh chạy backend/frontend, seed test data và test commands có thể tái hiện.
+Không dùng Docker — stack chạy serverless (Vercel + Supabase Cloud), không có service tự host nào cần đóng gói container (xem PA1 mục 3.3). Chỉ cần:
+
+1. **Node 22** (khớp `.nvmrc`/`engines` trong `package.json`; dùng `nvm use` nếu có nvm). Không cần Python/Docker.
+2. `npm install`.
+3. Copy `.env.example` → `.env.local`, điền `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (lấy từ Supabase project cloud có sẵn — hỏi người giữ project), `NEXT_PUBLIC_MAPBOX_TOKEN`. **Không commit `.env.local`.**
+4. `npm run dev` — chạy tại `localhost:3000`.
+
+Kiểm tra trước khi push: `npx tsc --noEmit`, `npm run lint`, `npm run build` — cũng là 3 bước CI (`.github/workflows/ci.yml`) chạy tự động trên PR/push vào `main`.
+
+Migration database (`supabase/migrations/`) áp dụng qua Supabase CLI (`npx supabase link`, `npx supabase db push`) — chỉ người giữ quyền truy cập Supabase project mới chạy được, xem `docs/specs/2026-10-22-backend-schema.md`.
 
 ## 8. Tài liệu và liên kết
 
