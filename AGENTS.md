@@ -39,7 +39,7 @@ Cấu trúc chính:
 
 ```text
 src/app/                 # routes (App Router)
-src/app/api/             # API routes (tầng Model) — sync/*, locations, air-quality/*, weather/*
+src/app/api/             # API routes (tầng Model) — sync/*, jobs/*, locations, air-quality/*, weather/*, advisories/*, me/*, map/*
 src/components/ui/       # shadcn/ui components (neumorphism theo design.md)
 src/components/providers/# provider client (Lenis, ...)
 src/lib/                 # utils, supabase clients (client.ts/server.ts/admin.ts), open-meteo.ts
