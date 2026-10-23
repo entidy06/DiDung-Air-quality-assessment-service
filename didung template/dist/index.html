@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4e6cd">
+  <meta name="description" content="DiDung — một khoảng nhìn về không khí Sài Gòn. Template US AQI với dữ liệu minh họa, 6 mức chất lượng không khí và giao diện botanical.">
+  <title>DiDung — Một nhịp thở, một ngày xanh.</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 50'%3E%3Crect width='50' height='50' fill='%23f4e6cd'/%3E%3Ctext x='10' y='37' font-family='Arial' font-size='36' fill='%231e211e'%3ED%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body data-level="0">
+  <a href="#main" class="skip-link">Đến nội dung chính</a>
+  <header class="site-header">
+    <a class="wordmark" href="#" aria-label="DiDung. Trang đầu">DiDung</a>
+    <p class="brand-caption">Không khí Sài Gòn.<br>Một khoảng nhìn, một nhịp thở.</p>
+    <nav aria-label="Điều hướng chính"><a href="#now">Hiện tại</a><a href="#history">Diễn biến</a><a href="#map">Quanh bạn</a></nav>
+    <button class="text-button alert-open" id="alert-open">Bật cảnh báo <span aria-hidden="true">↗</span></button>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="now" aria-label="Chất lượng không khí hiện tại">
+      <div class="sky" aria-hidden="true"><div class="sun"></div><div class="haze haze-one"></div><div class="haze haze-two"></div></div>
+      <div class="location-row">
+        <div class="search-wrap">
+          <form id="search-form" role="search" autocomplete="off">
+            <label for="location-search" class="sr-only">Tìm vị trí hoặc phường tại TP.HCM</label>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 6 6"/></svg>
+            <input id="location-search" type="search" placeholder="Tìm vị trí / phường tại TP.HCM" aria-controls="search-results" aria-expanded="false">
+            <button class="text-button" type="submit" aria-label="Tìm vị trí">Tìm <span aria-hidden="true">↗</span></button>
+          </form>
+          <div id="search-results" class="search-results" hidden></div>
+          <p id="search-feedback" class="sr-only" role="status"></p>
+        </div>
+        <p class="demo-label"><span class="demo-dot" aria-hidden="true"></span>Bản mẫu tương tác · Dữ liệu demo</p>
+      </div>
+
+      <div class="hero-body">
+        <div class="hero-copy">
+          <div class="hero-meta"><p><span aria-hidden="true">⌖</span> <span id="current-location">Bến Thành</span>, TP.HCM</p><p>18.10.2026 / 09:00 ICT · Demo</p></div>
+          <h1 id="hero-title"><span>Một nhịp thở,</span><span>một ngày xanh.</span></h1>
+          <p class="hero-intro" id="hero-message">Không khí hôm nay thật dễ chịu.</p>
+          <div class="reading" aria-live="polite" aria-atomic="true">
+            <div class="aqi-number" id="aqi-number">42</div>
+            <div class="reading-description"><p class="reading-standard">US AQI <a href="#method" aria-label="Đọc về thang US AQI">ⓘ</a></p><p id="aqi-label" class="aqi-label"><span class="status-dot"></span>Tốt</p><p id="aqi-range" class="reading-range">Good · 0–50</p></div>
+          </div>
+          <p class="hero-advice" id="hero-advice">Bạn có thể tận hưởng các hoạt động ngoài trời như thường lệ.</p>
+          <p class="update-note" id="update-note">Mốc cập nhật mẫu: 09:00, 18/10/2026 (ICT, UTC+7)</p>
+          <div id="missing-notice" class="missing-notice" hidden><p>Không nhận được số liệu mới. Chưa thể đánh giá chất lượng không khí tại vị trí này.</p><button id="retry-data" class="text-button">Thử lại với dữ liệu demo ↗</button></div>
+        </div>
+        <div class="botanical" aria-hidden="true"><img id="plant" src="assets/botanical.png" alt="" width="1024" height="1536" fetchpriority="high"></div>
+        <div class="weather-note"><div><span class="weather-icon" aria-hidden="true">☀</span><strong>29°</strong><span>Nắng nhẹ</span></div><p>Thời tiết demo, độc lập với AQI.</p></div>
+        <p class="scene-caption" id="scene-caption">Cảnh cây và bầu trời minh họa theo AQI.<br>Không phải hình ảnh hay thời tiết quan trắc.</p>
+      </div>
+
+      <div class="demo-controls">
+        <div class="demo-control-heading"><p>Thử một nhịp khí khác</p><button id="missing-toggle" class="text-button" aria-pressed="false">Thử thiếu dữ liệu ↗</button></div>
+        <div class="scenario-buttons" id="scenario-buttons" role="group" aria-label="Thử 6 mức US AQI"></div>
+        <p class="scene-description" id="scene-description">Minh họa: Trời sáng, lá xanh và nắng dịu.</p>
+      </div>
+    </section>
+
+    <section id="pollutants" class="section pollutants-section" aria-labelledby="pollutants-title">
+      <div class="section-heading"><h2 id="pollutants-title">Trong từng nhịp thở.</h2><p>Nồng độ minh họa · Trung bình 1 giờ</p></div>
+      <div id="pollutant-grid" class="pollutant-grid"></div>
+      <p class="caption">AQI tổng thể và nồng độ là các số liệu demo độc lập. Không quy đổi trực tiếp nồng độ 1 giờ thành US AQI.</p>
+    </section>
+
+    <section class="section health-section" aria-labelledby="health-title">
+      <div><p class="section-kicker">Không khí & sức khỏe</p><h2 id="health-title">Hôm nay,<br>bạn nên làm gì?</h2><p class="health-context">Một chút chuẩn bị để mỗi nhịp thở<br>được nhẹ nhàng hơn.</p></div>
+      <div class="health-guidance"><div class="advice-row"><span aria-hidden="true">↗</span><div><h3>Mọi người</h3><p id="general-advice"></p></div></div><div class="advice-row"><span aria-hidden="true">↗</span><div><h3>Nhóm nhạy cảm</h3><p id="sensitive-advice"></p></div></div><p class="caption">Gợi ý chung theo mức US AQI, tham khảo AirNow. Không thay thế tư vấn y tế cá nhân. Cảnh cây chỉ là ẩn dụ thị giác.</p></div>
+    </section>
+
+    <section id="history" class="section history-section" aria-labelledby="history-title">
+      <div class="section-heading"><h2 id="history-title">Nhìn lại. Hít thở. Lên kế hoạch.</h2><p>US AQI · Tất cả là dữ liệu mô phỏng</p></div>
+      <div class="timeline-layout">
+        <div class="history-plot"><div class="plot-top"><h3>24 giờ vừa qua</h3><p id="history-summary"></p></div><p class="caption">17/10, 10:00 → 18/10, 09:00 ICT</p><div id="chart" class="chart" role="img" aria-label="Biểu đồ lịch sử US AQI"></div><p id="chart-detail" class="chart-detail" aria-live="polite">Chạm hoặc di chuột lên biểu đồ để xem từng giờ.</p><details class="data-table-details"><summary>Xem bảng số liệu 24 giờ</summary><div id="history-table" class="table-scroll"></div></details></div>
+        <div class="forecast"><div class="plot-top"><h3>24 giờ sắp tới</h3><span class="caption">Dự báo demo</span></div><div id="forecast-list"></div><p class="caption">Các mốc minh họa đến 09:00 ngày 19/10. Đây không phải kết quả từ mô hình dự báo.</p></div>
+      </div>
+    </section>
+
+    <section id="map" class="section map-section" aria-labelledby="map-title">
+      <div class="section-heading"><h2 id="map-title">Không khí quanh bạn.</h2><p>Chọn một điểm để khám phá</p></div>
+      <div class="map-layout">
+        <div class="map-visual"><svg class="map-art" viewBox="0 0 700 390" preserveAspectRatio="none" aria-hidden="true"><defs><pattern id="blocks" width="70" height="58" patternUnits="userSpaceOnUse" patternTransform="rotate(-18)"><path d="M0 0H70V58H0Z" fill="none" stroke="#c5c0a9" stroke-width="1"/><path d="M35 0V58M0 29H70" fill="none" stroke="#d2cbb7" stroke-width=".5"/></pattern></defs><rect width="700" height="390" fill="#e9e2cc"/><path d="M0 15 290 0 600 50 700 330 630 390 0 390Z" fill="url(#blocks)"/><path d="M460-30C370 45 540 70 444 148S354 240 456 272 560 330 482 420" fill="none" stroke="#b8c8bd" stroke-width="44"/><path d="M460-30C370 45 540 70 444 148S354 240 456 272 560 330 482 420" fill="none" stroke="#f4e6cd" stroke-width="1"/><path d="M0 320 700 80M60 0 340 390M0 130 700 320" stroke="#f4e6cd" stroke-width="11"/><path d="M0 320 700 80M60 0 340 390M0 130 700 320" stroke="#c8bda5" stroke-width="1"/><path d="M60 85Q120 40 180 100T160 185 60 85M540 220Q640 180 670 240T610 310 540 220" fill="#c8d0b4"/><text x="440" y="342" fill="#526760" font-size="13" transform="rotate(22 440 342)">Sông Sài Gòn</text></svg><div id="map-markers"></div><span class="map-caption">Sơ đồ minh họa · Không theo tỷ lệ</span></div>
+        <div class="hotspot-list"><p class="caption">5 điểm mẫu · US AQI · 09:00 ICT</p><div id="hotspots"></div><p class="caption">Vị trí và số đo được chọn để thử giao diện, không đại diện mạng lưới trạm thật hay ranh giới hành chính.</p></div>
+      </div>
+      <p class="caption map-status" id="map-status" role="status">Các điểm mẫu giữ dữ liệu riêng khi bạn thử 6 trạng thái hero.</p>
+    </section>
+
+    <section id="method" class="section method-section" aria-labelledby="method-title">
+      <div><p class="section-kicker">Hiểu đúng con số</p><h2 id="method-title">Rõ nguồn.<br>Đúng ngữ cảnh.</h2><p>Không khí có thể vô hình.<br>Thông tin thì cần rõ ràng.</p></div>
+      <div class="method-content"><details open><summary>Thang đo nào đang được sử dụng?</summary><p>US AQI theo US EPA / AirNow, gồm 6 mức từ 0–500. Đây không phải VN AQI. Chỉ số AQI không có đơn vị; các nồng độ bên trên có đơn vị riêng.</p><div id="aqi-legend" class="aqi-legend"></div></details><details><summary>Nguồn dữ liệu & thời gian cập nhật</summary><p>Toàn bộ AQI, nồng độ, thời tiết, vị trí, lịch sử và dự báo trên trang là dữ liệu mô phỏng, mốc 09:00 ngày 18/10/2026, ICT (UTC+7). Chưa kết nối API hay trạm quan trắc. Chuyển trạng thái không làm mới mốc quan trắc.</p><p>AQI trong sản phẩm thực cần được cung cấp hoặc tính theo đúng chuẩn, thời gian lấy trung bình, chất lượng đo và quy tắc NowCast nếu dùng. Không suy AQI chỉ từ ảnh trời hoặc nắng/mưa.</p></details><details><summary>Vì sao cây và bầu trời thay đổi?</summary><p>Cảnh nền là một ẩn dụ thiết kế theo mức AQI, không phải dự báo thời tiết, ảnh camera hay kết luận rằng cây sẽ héo ngay khi AQI tăng. Trời nắng vẫn có thể ô nhiễm; trời âm u vẫn có thể có AQI tốt.</p></details><p class="caption sources">Tham chiếu: <a href="https://www.airnow.gov/aqi/aqi-basics/" target="_blank" rel="noreferrer">AirNow · AQI Basics ↗</a> · <a href="https://www.airnow.gov/publications/air-quality-index/air-quality-guide-for-particle-pollution/" target="_blank" rel="noreferrer">Hướng dẫn sức khỏe ↗</a></p></div>
+    </section>
+
+    <footer><a class="wordmark" href="#" aria-label="DiDung. Về đầu trang">DiDung</a><p>Để hiểu không khí.<br>Để thương từng nhịp thở.</p><p>Template đồ án AQI · 2026<br>Dữ liệu demo, không dùng để ra quyết định sức khỏe.</p><a href="#now">Trở về đầu trang ↑</a></footer>
+  </main>
+
+  <dialog id="alert-dialog" aria-labelledby="alert-title"><form id="alert-form"><div class="dialog-header"><span>Nhắc nhở chất lượng không khí</span><button type="button" id="close-alert" class="text-button" aria-label="Đóng cài đặt cảnh báo">Đóng ×</button></div><h2 id="alert-title">Một lời nhắc,<br>khi cần.</h2><p>Lưu ngưỡng cảnh báo cho vị trí đang xem. Bản mẫu chỉ hiển thị thông báo ngay trên trang khi bạn đổi AQI.</p><label for="alert-threshold">Nhắc khi US AQI đạt hoặc vượt</label><select id="alert-threshold" name="threshold"><option value="51">51 · Trung bình</option><option value="101" selected>101 · Kém cho nhóm nhạy cảm</option><option value="151">151 · Có hại</option><option value="201">201 · Rất có hại</option><option value="301">301 · Nguy hại</option></select><label class="check-label"><input id="alert-enabled" type="checkbox" checked> Bật nhắc mô phỏng cho vị trí đang xem</label><p class="caption" id="alert-location-label"></p><p class="caption">Không gửi push, email hay SMS; không theo dõi khi đóng trang. Tùy chọn được lưu trên trình duyệt nếu được phép.</p><button class="text-button save-alert" type="submit">Lưu lời nhắc demo ↗</button></form></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <noscript><p class="noscript">Bật JavaScript để thử 6 trạng thái, tìm vị trí và xem biểu đồ. Số 42 đang hiển thị là dữ liệu demo cố định.</p></noscript>
+</body>
+</html>

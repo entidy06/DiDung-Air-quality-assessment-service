@@ -1,0 +1,209 @@
+# DiDung — Design system và kế hoạch chuyển UI từ template
+
+Ngày đối chiếu mã nguồn: 23/10/2026. Phạm vi bàn giao: tài liệu thiết kế; chưa sửa UI, API, database hay template.
+
+## 1. Mục tiêu và thứ tự ưu tiên
+
+Đưa ngôn ngữ thị giác và animation của `D:\Study\didung template` vào `D:\Study\DiDung-Air-quality-assessment-service`, giữ nguyên năng lực và hành vi của service. Trang đầu là một cảnh mở đầu toàn màn hình theo ảnh tham chiếu; người dùng bấm **“Cuộn để khám phá ↓”** để đi vào câu chuyện và các công cụ bên dưới. Cuộn bằng chuột, cảm ứng và bàn phím vẫn hoạt động bình thường.
+
+Ưu tiên: tính đúng của dữ liệu → giữ tính năng/tab/route → khả năng sử dụng → style → animation. Chuyển động không được quyết định giá trị AQI, nội dung cảnh báo hay khả năng truy cập công cụ.
+
+Tài liệu này thay thế định hướng **Neumorphism toàn site** trong bản `design.md` trước bằng định hướng editorial/botanical của template, theo yêu cầu mới của người dùng. Các đoạn nhắc Neumorphism trong `AGENTS.md`, comment CSS và component hiện tại là hướng dẫn cũ cần đồng bộ khi triển khai. Những quy tắc còn lại của repo, đặc biệt MVVM và bước duyệt mockup trước khi sửa UI, vẫn áp dụng.
+
+## 2. Nguồn đã đọc và hiện trạng thực tế
+
+### Template
+
+- `dist/index.html`: hero; tìm địa điểm; điều hướng Hiện tại / Diễn biến / Quanh bạn; popup cảnh báo; các section nồng độ, lời khuyên, lịch sử/dự báo, sơ đồ và giải thích nguồn.
+- `dist/styles.css`: nền vellum, sans-serif cỡ lớn, đường kẻ mảnh, bố cục phẳng; cảnh trời/cây đổi theo AQI; responsive; reduced motion; cây đung đưa chu kỳ 3 giây.
+- `dist/app.js`, `dist/model.js`: tương tác DOM và fixture mô phỏng, sáu mức AQI, địa điểm mẫu, biểu đồ, cảnh báo localStorage.
+- `README.md`, `ASSETS.md`: giới hạn demo và nguồn gốc ảnh cây `dist/assets/botanical.png` (PNG RGBA 1024 × 1536, tạo bằng ImageGen).
+- Ảnh người dùng đính kèm `image.png`: tham chiếu cho cảnh mở đầu; các số, địa điểm và thời gian trong ảnh không phải dữ liệu vận hành.
+
+### Service
+
+| Nguồn code | Đã có trong mã nguồn | Yêu cầu giữ khi đổi UI |
+| --- | --- | --- |
+| `src/app/page.tsx` | Một trang khởi đầu DiDung, hai nút “Bắt đầu”, “Tìm hiểu thêm” | Giữ ý định hai hành động: bắt đầu dùng công cụ và tìm hiểu; hiện chưa có handler nghiệp vụ để suy diễn thêm |
+| `src/app/layout.tsx` | Metadata DiDung, tiếng Việt, Geist/Geist Mono, LenisProvider | Giữ tên sản phẩm, ngôn ngữ và cấu trúc provider |
+| `src/app/api/locations/route.ts` | Danh sách địa điểm active | Dùng địa điểm thật từ service, giữ ID/slug/tọa độ |
+| `src/app/api/air-quality/current/route.ts` | `valid_at`, `pm2_5`, `european_aqi`, `us_aqi`, `source`, `fetched_at`, `data_type: modeled` | Giữ nguồn, chuẩn chỉ số và nhãn dữ liệu mô hình |
+| `src/app/api/weather/current/route.ts` | Mưa, xác suất mưa, ẩm, gió/hướng gió, UV, thời gian nắng, nguồn/thời gian | Giữ các trường hiện có; không thay bằng thời tiết demo |
+| `src/app/api/advisories/current/route.ts` | `air_quality_level`, `summary`, `action`, `note`, `model`, thời gian | Giữ lời khuyên từ service và trạng thái thiếu/lỗi riêng |
+| `src/app/api/sync/*` | Route đồng bộ AQI mô hình, thời tiết, lời khuyên | Không thay đổi cơ chế sync vì đổi giao diện |
+| `src/stores/ui-store.ts` | State `sidebarOpen` và `toggleSidebar` | Không xóa state; hiện chưa có sidebar UI hoàn chỉnh |
+| `src/components/ui/button.tsx`, `src/app/globals.css` | Button và token Soft UI | Giữ API props/variant; thay biểu hiện thị giác khi triển khai |
+
+**Chưa thấy tab dashboard, trang bản đồ, lịch sử, dự báo, thông báo hay tài khoản hoàn chỉnh trong cây route hiện tại.** Có dependency Mapbox/GSAP không đồng nghĩa đã có tính năng. README mô tả nhiều chức năng dự kiến và có thể chậm hơn code API; dùng code để xác định phần đã triển khai, dùng yêu cầu được duyệt để xác định phạm vi sản phẩm.
+
+Trước khi triển khai phải đối chiếu lại nhánh/working tree lúc đó: lập danh sách mọi tab, route, action và quyền truy cập; mọi mục mới xuất hiện đều phải giữ. Không lấy ba link của template làm danh sách thay thế navigation của service.
+
+## 3. Hướng nghệ thuật được chọn
+
+**Organic / Nature + Swiss / International**, bố cục phẳng, chuyển động Parallax tiết chế và scroll storytelling theo chiều dọc.
+
+| Nhóm style người dùng đưa | Cách áp dụng |
+| --- | --- |
+| Swiss / International | Lưới rõ, chữ sans lớn, thứ bậc tốt, số liệu thẳng hàng |
+| Flat Design | Bề mặt liền nền, đường phân cách 1px, tránh thẻ nổi |
+| Organic / Nature | Cây ảnh thật, bầu trời và ánh sáng mềm làm điểm nhấn |
+| Parallax | Tách lớp trời, mặt trời, cây với biên độ khác nhau |
+| Bento Grid | Chỉ dùng cách chia vùng thông tin nếu công cụ cần; không biến mọi số liệu thành hộp bo tròn |
+| Material Design | Mượn tính nhất quán của phản hồi tương tác; không đưa thêm hệ màu/bóng riêng |
+| Các style còn lại | Là tập tham khảo, không trộn mặc định. Neon, glitch, terminal, pixel, luxury dark, collage và gamification không thuộc hướng hiện tại |
+
+Kết quả cần giống một trang editorial về môi trường: rộng, thoáng, có cảm xúc nhưng đọc số liệu nhanh. Không dùng neumorphism, glassmorphism, bóng kép, nền dashboard dày đặc hoặc cursor tùy biến.
+
+## 4. Palette và token
+
+Các giá trị dưới lấy từ CSS/model của template; đây là mục tiêu thiết kế, chưa được áp vào CSS service.
+
+| Token mục tiêu | Giá trị | Vai trò |
+| --- | --- | --- |
+| `--paper` | `#F4E6CD` | Nền chính |
+| `--ink` | `#1E211E` | Chữ và icon chính |
+| `--linen` | `#EDDDC3` | Hover, vùng phụ |
+| `--muted` | `#5E6055` | Metadata, chú thích |
+| `--rule` | `#9A9985` | Đường phân cách |
+| `--accent` | `#397447` | Hành động chính, trạng thái tốt |
+| `--sky-top` / `--sky-mid` | `#B5D1DB` / `#DCE4D2` | Cảnh nền tốt, chuyển về paper ở dưới |
+
+Màu trạng thái theo template: tốt `#397447`; trung bình `#A37C15`; nhóm nhạy cảm `#AC5A26`; có hại `#B03933`; rất có hại `#805182`; nguy hại `#7E3045`. Dùng kèm số và nhãn, không dùng màu một mình. Chữ body vẫn dùng ink; màu nhấn không tự động phù hợp cho chữ nhỏ.
+
+Ánh xạ token semantic mục tiêu: background/card/input → paper; foreground/card-foreground → ink; muted surface → linen; muted-foreground → muted; border → rule; primary/ring → accent; destructive → màu có hại. Kiểm tra tương phản thực tế trước khi chọn màu foreground trên button có nền đặc.
+
+Các token cũ cream/brown/olive/forest/sage/butter/orange/crimson và `shadow-neu*` phải được rà soát toàn bộ nơi dùng khi chuyển đổi. Giữ alias tương thích trong giai đoạn chuyển nếu cần; không xóa token khiến UI hiện có hỏng. Không áp cả palette cũ và mới xen kẽ trong bản hoàn tất.
+
+## 5. Typography, khoảng cách và component
+
+- Template dùng Arial/Helvetica Neue với chữ sans, weight khoảng 500 cho heading và tracking âm. Service hiện dùng Geist: giữ font hiện có ở giai đoạn đầu, điều chỉnh tỉ lệ/khoảng cách; nếu cần khớp template hơn, dùng system sans thay vì thêm font có bản quyền.
+- Heading hero desktop mục tiêu 72–132px, line-height 1.04–1.1; mobile khoảng 42–60px. Cho phép giảm theo chiều cao viewport để CTA còn nhìn thấy. Không ép chiều rộng làm biến dạng chữ hoặc mất dấu tiếng Việt.
+- Số AQI desktop khoảng 112–160px; mobile 80–108px; số có độ rộng ổn định. Body 16–18px; nội dung tương tác mobile tối thiểu 16px; metadata 12–13px và đủ tương phản.
+- Desktop: gutter khoảng 4.2vw, tối thiểu 24px; mobile khoảng 6vw, tối thiểu 16px. Section spacing 72–96px desktop / 40–56px mobile. Nội dung dữ liệu có giới hạn chiều rộng để không kéo giãn trên màn hình lớn.
+- Mặc định góc vuông hoặc bo nhẹ 0–4px. Button/link dùng underline, mũi tên hoặc viền 1px. Không tạo shadow nổi/lõm. Dropdown/dialog có nền đặc, viền rõ và focus ring.
+- Tab đang chọn dùng underline và nhãn active, giữ semantic/keyboard hiện có; không đổi tab nghiệp vụ thành carousel kể chuyện.
+- Input tìm kiếm có nhãn truy cập được, viền dưới, kết quả bàn phím và trạng thái loading/empty/error. Không sao chép dropdown chỉ dựa vào hover.
+- Biểu đồ/bản đồ giữ tương tác, chú giải, bảng thay thế và đơn vị nếu đã có; không dùng ảnh hoặc sơ đồ demo thay cho công cụ thật.
+
+## 6. Landing page: cảnh đầu chỉ có hero
+
+### Bố cục cảnh mở đầu
+
+Trang `/` khi vào mới, không hash và không khôi phục lịch sử, bắt đầu ở đầu trang. Khung nhìn đầu chứa hero và một header mảnh nếu cần. Header nằm trong cùng tổng chiều cao màn hình, không cộng thêm khiến section sau ló vào hoặc CTA bị đẩy xuống ngoài màn hình.
+
+- Trái/trên: logo DiDung nhỏ, tìm khu vực, tên địa điểm và metadata.
+- Trái/giữa: headline hai dòng và câu mô tả trạng thái, AQI + chuẩn + nhãn + timestamp thật.
+- Phải: cây botanical lớn, mặt trời và lớp trời; không che chữ hay bắt pointer.
+- Thời tiết là chú thích phụ nếu có dữ liệu hỗ trợ, không chiếm ưu tiên của AQI.
+- Dưới trong hero: **“Cuộn để khám phá ↓”**, là hành động chính, dẫn đến `#explore`.
+- Có đường tắt “Bắt đầu” dẫn đến công cụ thật ở `#workspace`; giữ khả năng đi nhanh của service. “Tìm hiểu thêm” dẫn đến phần giải thích nguồn.
+- Không đặt demo scenario switcher, biểu đồ, grid feature hay toàn bộ dashboard trong khung nhìn đầu.
+
+Tổng hero mục tiêu một viewport ổn định; dùng chiều cao tối thiểu và bố cục linh hoạt, không fixed-height cắt nội dung. Trên điện thoại thấp, cho phép hero dài hơn màn hình khi cần để giữ chữ/CTA truy cập được; ưu tiên giảm cây và khoảng trống trước khi giảm chữ. Không cho phần feature tiếp theo tràn vào khung mở đầu.
+
+Nội dung bên dưới vẫn có trong document và truy cập bằng cuộn/link. Nút cuộn là lời mời khám phá, không phải khóa bắt buộc phải bấm mới được dùng tính năng. Không chặn wheel/touch/Space/PageDown.
+
+### Storyboard và hành vi cuộn
+
+| Cảnh | Nội dung / câu hỏi | Chuyển động đề xuất | Đích tương tác |
+| --- | --- | --- | --- |
+| 0 — Một nhịp thở | “Không khí nơi bạn sắp đi thế nào?”; hero theo ảnh | Cây đung đưa nhẹ; trời tĩnh; nội dung có sẵn ngay | Cuộn để khám phá / Bắt đầu |
+| 1 — Hiểu con số (`#explore`) | AQI có nghĩa gì, nguồn nào, dữ liệu mô hình hay quan trắc | Cây dịch nhẹ, vùng trời chuyển dần sang paper; heading hiện theo viewport | Đọc chuẩn/nguồn, không chạy đếm AQI từ 0 |
+| 2 — Đặt vào ngày của bạn | Lời khuyên và thời tiết theo địa điểm đang chọn | Hai cột editorial; các nhóm hiện tuần tự | Xem `summary`, `action`, `note`; đọc chi tiết thời tiết |
+| 3 — Công cụ (`#workspace`) | Các tab/tính năng của service | Kết thúc đoạn kể chuyện; bố cục làm việc ổn định | Dùng navigation, filter, map/chart và action hiện có |
+| 4 — Rõ nguồn (`#method`) | Chuẩn chỉ số, nguồn, thời gian, giới hạn dữ liệu | Reveal nhẹ hoặc tĩnh; accordion nếu phù hợp | Đọc nguồn / trở về đầu |
+
+Trong code hiện tại, cảnh 3 chỉ có thể triển khai các phần đã có hợp đồng dữ liệu. Lịch sử/dự báo/bản đồ/tài khoản/thông báo là chỗ dành cho tính năng đã được duyệt và thực sự được xây; không dựng hoạt động giả để lấp storyboard.
+
+Desktop có thể dùng một khung visual sticky xuyên cảnh 1–2, text chạy tự nhiên bên cạnh; không pin nhiều màn hình khiến người dùng bị giữ lại. Mobile chuyển thành các section dọc độc lập, không sticky dài. Không dùng horizontal scroll hoặc scroll snap bắt buộc.
+
+Khi chuyển địa điểm, cập nhật đồng bộ các phần liên quan, giữ vị trí cuộn và tab đang dùng. Back/forward, URL có hash và truy cập trực tiếp công cụ phải đi đúng đích, không bị ép xem lại hero. Cảnh báo quan trọng không bị giấu sau câu chuyện.
+
+## 7. Motion specification
+
+Các con số dưới là mục tiêu thiết kế, không phải hướng dẫn API đã được xác minh.
+
+| Chuyển động | Quy tắc |
+| --- | --- |
+| Hover/focus | 150–200ms; đổi underline/màu; không nhảy layout |
+| Section reveal | Opacity và dịch dọc 16–24px, 400–600ms, lệch nhau tối đa 60–90ms giữa các nhóm; chỉ lần đầu vào viewport |
+| Nút cuộn | Cuộn đến đầu `#explore` với offset header; focus chuyển hợp lý đến tiêu đề đích |
+| Parallax | Trời 0–12px, mặt trời 0–24px, cây 0–40px trong đoạn kể chuyện desktop; giảm/tắt trên mobile |
+| Cây | Giữ nhịp template: chu kỳ 3 giây, phần lớn ở trạng thái nghỉ; lệch khoảng −0.7° → +0.45° → −0.15° → 0° |
+| Đổi mức AQI | Chuyển sắc/độ sáng cảnh khoảng 800–1400ms; số và nhãn cập nhật ngay cùng dữ liệu, không chờ animation |
+| Khi ngoài viewport | Dừng animation lặp của cây; không tiêu tốn khung hình ở phần không nhìn thấy |
+| Reduced motion | Tắt sway/parallax/pin/reveal dịch chuyển/smooth scroll; mọi nội dung đọc được ngay, điều hướng cuộn tức thời |
+
+Tách wrapper: lớp ngoài nhận vị trí/parallax/nghiêng theo AQI; ảnh bên trong nhận sway. Không để hai animation ghi đè cùng transform. Chỉ một bên sở hữu smooth scrolling; không chồng native smooth scroll và Lenis. LenisProvider hiện có cần được rà soát cho reduced motion trước khi tái sử dụng.
+
+Progress của câu chuyện chỉ thể hiện vị trí đọc, không biểu diễn AQI. Cuộn không tự đổi dữ liệu môi trường từ tốt sang xấu. Scene phải dựa trên dữ liệu service hợp lệ; trời nắng/mưa không được dùng suy ra chất lượng không khí.
+
+## 8. Chuyển từ template sang dữ liệu service
+
+| Thành phần template | Cách tích hợp vào service |
+| --- | --- |
+| Hero AQI = 42 và fixture sáu mức | Bỏ fixture trong luồng thật; bind `us_aqi` và thời gian/nguồn từ API qua ViewModel |
+| Năm địa điểm mẫu | Thay bằng `/api/locations`; giữ ID thật xuyên toàn bộ request |
+| PM2.5 + PM10/O₃/NO₂/CO/SO₂ demo | Hiện PM2.5 từ API; các chất khác chỉ hiện khi có field/nguồn thật, không dựng số |
+| “29° Nắng nhẹ” | API weather hiện chưa trả nhiệt độ; không hiển thị 29° hoặc suy nhiệt độ từ trường khác. Dùng mưa/gió/ẩm/UV hiện có |
+| Lời khuyên tĩnh | Dùng advisory `summary/action/note`, trạng thái thiếu riêng; không đổi mô hình sinh lời khuyên |
+| Lịch sử/dự báo tạo từ `makeHistory` | Không chép hàm tạo mẫu; cần nguồn/endpoint thật trước khi hiển thị đồ thị có giá trị |
+| Sơ đồ hotspot năm điểm | Chỉ mượn style marker/list; không thay bản đồ thật bằng sơ đồ demo |
+| Popup cảnh báo localStorage | Chỉ mượn layout; giữ backend và hành vi cảnh báo service nếu đã có. Không tuyên bố đã gửi push/email |
+| Sáu nút scenario và nút thiếu dữ liệu | Chỉ trong preview/demo tách biệt và có nhãn; không cho phép ghi đè dữ liệu vận hành |
+| Ảnh botanical | Chép asset nguồn sang `public/assets/botanical.png` khi triển khai, giữ ghi nhận nguồn trong tài liệu; không dùng screenshot cả trang làm UI |
+
+`src/lib/air-quality.ts` hiện gom thành bốn mức và trả `moderate` khi AQI null. Đây là điểm cần xử lý rõ trong thiết kế ViewModel: thiếu số liệu phải hiện “Chưa có dữ liệu” và cảnh trung tính, không hiện “Trung bình” hoặc “Tốt”. Không sửa helper dùng chung/logic advisory như một thay đổi CSS; nếu cần sửa Model, lập thay đổi riêng và kiểm tra các nơi dùng.
+
+Visual sáu mức của template cần được ánh xạ rõ với giá trị US AQI hợp lệ; không tự biến bốn nhãn nghiệp vụ hiện có thành sáu nhãn trong database. Nếu chưa thống nhất mapping, dùng scene trung tính và nhãn service. European AQI phải được ghi nhãn riêng, không áp ngưỡng US AQI lên giá trị đó.
+
+Loading, chưa có dữ liệu, dữ liệu cũ và lỗi API là các trạng thái khác nhau. Không fallback sang số demo hoặc giờ máy khách. Hiển thị thời điểm hiệu lực từ `valid_at`, thời điểm nhận từ `fetched_at` khi cần; trình bày Asia/Ho_Chi_Minh (UTC+7). Ngưỡng dữ liệu cũ lấy từ chính sách service được duyệt, không tự đặt trong CSS.
+
+## 9. Kiến trúc và phạm vi file khi triển khai
+
+- **View:** page và component chỉ render props/state đã chuẩn bị; chia HeroScene, StorySection, ServiceWorkspace và SourceSection nếu phù hợp. Đây là cấu trúc đề xuất, không phải file hiện có.
+- **ViewModel:** hooks/store quản lý địa điểm chọn, loading/error, kết quả API, trạng thái thiếu và action. Giữ MVVM; không gọi Supabase hoặc API nguồn ngoài trực tiếp trong component.
+- **Model/API:** giữ endpoint, schema, scheduler, auth và cơ chế advisory. Không chép `dist/app.js` với thao tác DOM trực tiếp vào React; không mang `model.js` demo vào dữ liệu thật.
+- `src/app/globals.css`: triển khai palette và typography mới, rà soát token cũ.
+- `src/components/ui/button.tsx`: restyle đồng nhất nhưng giữ props/variant/asChild và focus semantics.
+- `src/components/providers/lenis-provider.tsx`: rà soát một vòng RAF, cleanup và reduced motion; không tạo provider thứ hai.
+- `src/app/page.tsx`: tổ chức hero → story → công cụ, giữ đường vào chức năng.
+- Không thêm dependency chỉ để tạo reveal/cây đung đưa. Stack đã khai báo có GSAP/Lenis; trước khi viết code dùng thư viện, xác minh API/version bằng tài liệu chính thức theo AGENTS.md.
+
+## 10. Responsive, accessibility và hiệu năng
+
+- Desktop ≥1100px: hero text/cây hai vùng; tablet 761–1099px giảm cây, không chồng metadata. Mobile ≤760px: một cột, hình trang trí nhỏ hơn, CTA rõ; màn hình hẹp khoảng 360px không có tràn ngang.
+- Menu mobile vẫn chứa đầy đủ mục service và mở được bằng bàn phím; không sao chép quy tắc template ẩn nav mà không có phương án thay thế.
+- Focus nhìn thấy, thứ tự tab theo thứ tự đọc, có skip link đến công cụ. Nút tối thiểu vùng chạm 44×44px; popup giữ focus và trả focus về nút mở.
+- Nội dung vẫn đọc được khi animation không khởi tạo hoặc JavaScript animation lỗi. Không đặt opacity 0 vĩnh viễn làm mặc định cho section.
+- Cây, nắng, haze là trang trí và bị bỏ qua bởi trình đọc màn hình; chỉ cập nhật live region cho thay đổi dữ liệu cần thiết, không đọc lại mỗi frame.
+- Dành sẵn kích thước ảnh để tránh layout shift. Chỉ hero ưu tiên tải; phần nặng bên dưới tải khi phù hợp mà không xóa khả năng truy cập.
+- Ưu tiên transform/opacity; giới hạn blur/haze lớn trên mobile. Không đưa WebGL hoặc animation liên tục vào chỉ vì package OGL có sẵn.
+- Kiểm tra zoom 200%, viewport thấp, tiếng Việt dài và nhãn AQI nhiều dòng; không cắt timestamp hoặc chuẩn chỉ số.
+
+## 11. Trình tự thực hiện và tiêu chí nghiệm thu
+
+1. Chốt inventory tab/route/action ở working tree lúc triển khai, ghi rõ phần hiện có và phần chờ xây.
+2. Vẽ mockup hero desktop/mobile và storyboard cảnh 0–4 theo tài liệu này. Theo AGENTS.md §5, cần người dùng xác nhận mockup trước khi sửa code UI. Việc viết tài liệu này chưa phải xác nhận một mockup chưa được tạo.
+3. Đổi token/component style, giữ API component và chức năng.
+4. Dựng hero và các section bằng dữ liệu từ ViewModel; nối đường tắt đến công cụ.
+5. Thêm motion sau khi layout/interaction hoạt động; kiểm tra reduced motion và mobile.
+6. Rà soát regression toàn bộ navigation, tìm kiếm, filter, dialog và trạng thái dữ liệu; chạy các kiểm tra sẵn có phù hợp thay đổi. Không tự tạo bộ test mới nếu chưa có yêu cầu/duyệt theo AGENTS.md §7.
+
+Checklist bàn giao UI:
+
+- [ ] Lần vào mới chỉ thấy hero theo tinh thần ảnh; CTA cuộn nằm trong vùng truy cập được.
+- [ ] Bấm CTA tới `#explore`; wheel/touch/keyboard, URL hash và Back/Forward vẫn đúng.
+- [ ] Có đường đi trực tiếp đến công cụ, không bắt xem hết câu chuyện.
+- [ ] Không mất tab/route/action/quyền truy cập nào so với inventory service trước khi đổi UI.
+- [ ] Dữ liệu, timestamp, nguồn và nhãn mô hình từ service; không còn fixture demo trong luồng thật.
+- [ ] Không hiện nhiệt độ/biểu đồ/lời hứa tính năng khi backend chưa hỗ trợ.
+- [ ] Loading/missing/stale/error hiển thị đúng; dữ liệu thiếu không tạo scene an toàn giả.
+- [ ] Style thống nhất paper/ink/botanical/đường kẻ mảnh, không còn bóng neumorphic trong UI đã chuyển.
+- [ ] Cây không che dữ liệu; số/nhãn AQI không bị animation làm chậm hoặc đổi sai.
+- [ ] Mobile, zoom, keyboard, focus, reduced motion và fallback animation hoạt động.
+- [ ] Mockup đã duyệt và code khớp mockup; kết quả kiểm tra được ghi đúng phạm vi thực tế.
+
+## 12. Giới hạn của lần bàn giao này
+
+Đã đối chiếu source template và source service, chưa chạy service, chưa xác nhận dữ liệu Supabase đang hoạt động, chưa sửa template hay triển khai giao diện. Không thêm tab, schema, dependency, hoặc sửa logic nghiệp vụ. Tài liệu định nghĩa mục tiêu và cách tích hợp để bước dựng mockup/triển khai tiếp theo có căn cứ cụ thể.
