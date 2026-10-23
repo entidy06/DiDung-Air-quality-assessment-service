@@ -40,9 +40,11 @@ Cấu trúc chính:
 ```text
 src/app/                 # routes (App Router)
 src/app/api/             # API routes (tầng Model) — sync/*, jobs/*, locations, air-quality/*, weather/*, advisories/*, me/*, map/*
+src/app/auth/callback/   # đổi OAuth code lấy session (Supabase Auth)
+src/proxy.ts             # refresh session Supabase mỗi request (Next.js 16: middleware.ts -> proxy.ts)
 src/components/ui/       # shadcn/ui components (neumorphism theo design.md)
 src/components/providers/# provider client (Lenis, ...)
-src/lib/                 # utils, supabase clients (client.ts/server.ts/admin.ts), open-meteo.ts
+src/lib/                 # utils, supabase clients (client/server/admin/middleware.ts), open-meteo.ts, ninerouter.ts
 src/stores/              # Zustand stores
 supabase/migrations/     # migration DB có version (Supabase CLI), xem docs/specs/2026-10-22-backend-schema.md
 docs/  pa/               # tài liệu đồ án
@@ -59,7 +61,7 @@ Khi nâng/đổi version hoặc thêm thư viện: **cập nhật bảng trên t
 
 | Lớp | Vai trò | Vị trí trong repo |
 | --- | --- | --- |
-| **Model** | Dữ liệu domain, business logic, truy cập nguồn dữ liệu (Supabase, OpenAQ, Open-Meteo), tính toán dự báo/ngưỡng cảnh báo | `src/lib/` (supabase clients, data access, domain logic), Next.js API routes (`src/app/api/`) |
+| **Model** | Dữ liệu domain, business logic, truy cập nguồn dữ liệu (Supabase, Open-Meteo — OpenAQ đã loại khỏi MVP, xem `docs/specs/2026-10-22-backend-schema.md`), tính toán dự báo/ngưỡng cảnh báo, gọi LLM gateway (9Router) sinh lời khuyên | `src/lib/` (supabase clients, data access, domain logic), Next.js API routes (`src/app/api/`) |
 | **View** | UI thuần, **không chứa business logic, không tự fetch/transform data** | `src/app/**/page.tsx`, `src/components/` (Server/Client Components) |
 | **ViewModel** | Cầu nối Model ↔ View: giữ state, gọi Model, expose dữ liệu/hành động đã xử lý cho View | `src/stores/` (Zustand) + custom hooks `src/hooks/` |
 
