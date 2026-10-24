@@ -1,44 +1,56 @@
-﻿# DiDung — Thiết kế landing page
+﻿# design.md — Design System
 
-Cập nhật ngày 24/10/2026. Hướng hiện tại: **Neumorphism + Claymorphism + Playful/Hand-drawn + Organic/Nature + Pastel Soft**, kể chuyện khi cuộn. Hướng này theo yêu cầu mới nhất của người dùng, thay thế hướng editorial/flat trước đó.
+Phong cách UI toàn site: **Neumorphism (Soft UI)**. Mọi UI phải tuân theo file này; bản vẽ UI (AGENTS.md §4) cũng vậy.
 
-## Bản thiết kế hiện tại
+## 1. Palette (cố định, không thêm màu ngoài danh sách)
 
-- [Preview tương tác](docs/design/landing-soft-preview.html): bản duy nhất tiếp tục chỉnh, đã thêm nút **Đăng nhập** ở header theo yêu cầu.
-- [Feature, storyboard và căn cứ backend](docs/design/2026-10-24-landing-soft-brief.md): tài liệu chi tiết của bản hiện tại.
-- [Quy chuẩn palette và bóng neumorphism](docs/design/legacy-neumorphism.md): tài liệu nền được giữ để tham khảo token; hướng hình ảnh tổng thể theo bản brief hiện tại.
-- [Nguồn minh họa](docs/design/assets/README.md): SVG Mầm đang sử dụng.
+| Token | Hex | Vai trò |
+| --- | --- | --- |
+| `--cream` | `#FCECD8` | **Nền chính** của site và bề mặt mọi component neumorphic |
+| `--brown` | `#6E3511` | Chữ chính, icon, tiêu đề |
+| `--olive` | `#597928` | Màu chủ đạo (primary), nút chính, trạng thái tốt |
+| `--forest` | `#486C2F` | Primary hover/active, focus ring |
+| `--sage` | `#91AC67` | Màu phụ, biểu đồ, nhãn nhẹ, track của slider/progress |
+| `--butter` | `#F1E5A1` | Highlight, secondary/muted surface, trạng thái trung bình/lưu ý |
+| `--orange` | `#EF6905` | Accent, cảnh báo, điểm nhấn hành động |
+| `--crimson` | `#8B2626` | Lỗi, nguy hiểm, destructive, trạng thái xấu |
 
-Người dùng nhận xét bản preview đẹp và yêu cầu thêm nút đăng nhập, sau đó yêu cầu dọn các phiên bản thừa. Chưa triển khai landing vào `src/`; bản preview dùng dữ liệu minh họa, không xác thực hoặc lưu thiết lập.
+Token đã khai báo trong `src/app/globals.css` và ánh xạ sang biến shadcn (`--primary`, `--destructive`, ...).
 
-## Hướng thị giác
+Quy tắc dùng màu:
+- Chữ trên nền cream: `brown`. Chữ trên `olive`/`forest`/`crimson`: `cream`. Chữ trên `orange`/`butter`/`sage`: `brown` (không dùng cream/trắng vì thiếu tương phản).
+- Màu **không** được là kênh truyền thông tin duy nhất; kèm icon hoặc nhãn.
+- Không dùng đen/trắng thuần, không dùng gradient màu ngoài palette.
 
-Nền cream `#FCECD8`, chữ brown `#6E3511`, primary olive `#597928`, forest `#486C2F`, sage `#91AC67`, butter `#F1E5A1`. Orange/crimson biểu diễn trạng thái cùng nhãn chữ. Hai bóng sáng/tối `#FFF9F0` và `#D9C7AE` tạo bề mặt nổi/lõm; bo góc lớn. Palette cũng có trong `src/app/globals.css`.
+## 2. Neumorphism
 
-Minh họa Mầm dùng SVG với các khối lá/mây/mặt trời bo mềm, gradient và bóng nhẹ tạo cảm giác đất sét. Không dùng ảnh thực tế hoặc hình ảnh để suy ra chất lượng không khí.
+Bề mặt cùng màu nền (`cream`), nổi/lõm bằng **hai bóng đổ đối xứng**: sáng ở góc trên-trái, tối ở góc dưới-phải. Hai tông bóng là **tint dẫn xuất từ cream** (ngoại lệ duy nhất của §1):
 
-## Mạch kể chuyện
+| Token | Hex | Dùng cho |
+| --- | --- | --- |
+| `--neu-light` | `#FFF9F0` | Bóng sáng (-x,-y) |
+| `--neu-dark` | `#D9C7AE` | Bóng tối (+x,+y) |
 
-Mở đầu “Ngoài kia có một ngày dễ chịu” → Hít thở (AQI/PM2.5 và khu vực/bản đồ) → Chuẩn bị (mưa, UV, gió, độ ẩm và lời khuyên AI) → Chọn lúc (lịch sử/dự báo) → Nhắc mình (ngưỡng cá nhân và thông báo) → nguồn/giới hạn → lời mời khám phá.
+Trạng thái:
 
-Desktop có chỉ mục chương sticky; mobile một cột, cuộn tự nhiên. Tôn trọng reduced motion. Preview có đổi tình huống tốt/xấu/thiếu dữ liệu, đổi biểu đồ, kéo ngưỡng và mở thông báo minh họa khi bấm đăng nhập.
+| Trạng thái | Shadow | Tailwind |
+| --- | --- | --- |
+| Nổi (card, panel) | `8px 8px 16px dark, -8px -8px 16px light` | `shadow-neu` |
+| Nổi nhỏ (button, chip) | `4px 4px 8px dark, -4px -4px 8px light` | `shadow-neu-sm` |
+| Lõm/pressed (input, button active, track) | `inset 6px 6px 12px dark, inset -6px -6px 12px light` | `shadow-neu-inset` |
 
-## Dữ liệu và triển khai
+Quy tắc:
+- Border: không dùng (`--border: transparent`); phân tách bằng shadow.
+- Bo góc lớn: `--radius` = 1.25rem (`rounded-lg`); phần tử nhỏ `rounded-md`/`rounded-sm`.
+- Nút: nổi → hover nổi hơn → active lõm. Nút primary nền `olive`, hover `forest`.
+- Input/ô nhập: luôn **lõm** (`shadow-neu-inset`), nền `cream`.
+- Focus: ring 2px `forest`, không bỏ outline mà không thay thế.
+- Chuyển động ngắn (~200ms) trên `box-shadow`; tôn trọng `prefers-reduced-motion`.
+- Không lồng nhiều lớp nổi chồng nhau; tối đa 2 mức độ sâu trong một khu vực.
+- Một chế độ sáng duy nhất (nền cream); không có dark mode trừ khi spec được duyệt.
 
-Giới thiệu đúng những API backend đã có, xem bảng đối chiếu trong brief. Luôn phân biệt dữ liệu mô hình với quan trắc; ghi nguồn, chuẩn chỉ số và thời gian. Không giả định API có dữ liệu đầy đủ chỉ từ việc đọc source. Không quảng bá nhiệt độ, cảnh báo ngập, push/email hay chỉ đường như tính năng đã có.
+## 3. Thành phần UI
 
-Khi triển khai tuân AGENTS.md: MVVM, duyệt bản vẽ trước khi sửa UI; thay đổi auth/schema/kiến trúc phải qua spec và được duyệt. Không tự viết test. Lần dọn này chỉ cập nhật tài liệu/preview, không sửa source ứng dụng.
-
-## Xem preview
-
-Mở trực tiếp `docs/design/landing-soft-preview.html`, hoặc chạy từ root repo:
-
-```powershell
-node docs/design/serve-preview.mjs
-```
-
-Mở `http://127.0.0.1:4174/`. Dừng server bằng Ctrl+C. Không cần cài package.
-
-Đã dọn các phiên bản HTML/CSS/JS và bộ ảnh cũ không còn dùng; bản đã commit vẫn có lịch sử Git. Giữ bản nháp `design_new` và thư mục template ngoài `docs/design` nguyên trạng theo phạm vi yêu cầu.
-
-Giới hạn xác minh preview: đã kiểm tra cú pháp JavaScript/SVG và phục vụ file; chưa có trình duyệt kết nối để xác nhận trực quan. Workspace thiếu `node_modules`, chưa chạy được lint/typecheck/build của ứng dụng. Các nguồn MDN và Open-Meteo đã tra được lưu trong brief, không cần lặp lại tại đây.
+- Dùng shadcn/ui (`src/components/ui`), **chỉnh theo neumorphism** ở đây thay vì style lẻ trong trang.
+- Component mới phải dùng token ở §1–§2, không hard-code hex trong JSX.
+- Trạng thái chất lượng không khí (gợi ý, cần chốt trong spec/bản vẽ): tốt `olive` · trung bình `butter` · nhạy cảm `orange` · xấu `crimson`; kèm nhãn chữ.
