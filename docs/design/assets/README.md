@@ -1,7 +1,7 @@
-# Botanical asset
+# Minh họa của landing page
 
-For the new narrative artwork, see [story-assets.md](story-assets.md), including saved paths, generation method and final prompts.
+`soft-garden.svg` là minh họa vector gốc được tạo trong phiên thiết kế ngày 24/10/2026, dùng trong `../landing-soft-preview.html`.
 
-`botanical.png` is copied unchanged from `didung template/dist/assets/botanical.png` for the standalone design preview.
+Nhân vật Mầm, lá, mây, mặt trời và con đường cong được dựng bằng SVG, gradient và bóng mềm theo hướng Claymorphism / Organic / Pastel. Không phải ảnh quan trắc hay bản đồ địa lý. File không chứa số liệu môi trường hoặc chữ giao diện.
 
-Source attribution: the template's `ASSETS.md` records this as an image created with ImageGen, 1024 × 1536 PNG RGBA. No new image generation or editing was performed for this preview. The plant is decorative, not an observation of vegetation or air quality.
+Các ảnh của hướng thiết kế trước đã được dọn theo yêu cầu người dùng; lịch sử của các file đã commit có thể xem trong Git.

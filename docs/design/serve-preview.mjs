@@ -7,7 +7,7 @@ const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8'
 const server=http.createServer(async(req,res)=>{
   try{
     const requestPath=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
-    const target=path.resolve(root,'.'+(requestPath==='/'?'/landing-preview.html':requestPath));
+    const target=path.resolve(root,'.'+(requestPath==='/'?'/landing-soft-preview.html':requestPath));
     const relative=path.relative(root,target);
     if(relative==='..'||relative.startsWith('..'+path.sep)||path.isAbsolute(relative)){res.writeHead(403);res.end('Forbidden');return;}
     const file=await fs.readFile(target);res.writeHead(200,{'Content-Type':types[path.extname(target)]||'application/octet-stream','Cache-Control':'no-cache'});res.end(file);
