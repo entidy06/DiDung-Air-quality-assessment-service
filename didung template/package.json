@@ -1,0 +1,8 @@
+{
+  "name": "khi-aqi-template",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Editable Vietnamese US AQI demo template",
+  "scripts": { "test": "node --test tests/model.test.mjs", "start": "node serve.mjs" }
+}
