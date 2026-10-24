@@ -16,9 +16,10 @@ Quy tắc **bắt buộc** cho mọi AI agent làm việc trong repo này. Vi ph
 
 | Thành phần | Công nghệ | Version (xem `package.json`) |
 | --- | --- | --- |
-| Framework | Next.js (App Router, Turbopack) | 15.5.28 |
+| Framework | Next.js (App Router, Turbopack) | 16.4.2 |
 | UI runtime | React | 19.1.0 |
 | Ngôn ngữ | TypeScript | ^5 |
+| Lint | ESLint + `eslint-config-next` (flat config, không dùng `FlatCompat`) | ^10.13.0 / 16.4.2 |
 | Styling | Tailwind CSS v4 + `tw-animate-css` | ^4 |
 | UI components | shadcn/ui (Radix, cva, lucide-react) | `components.json`, style `new-york` |
 | Database / Auth | Supabase Cloud (PostgreSQL) — `@supabase/supabase-js`, `@supabase/ssr` | ^2.118.0 / ^0.12.7 |
@@ -28,6 +29,9 @@ Quy tắc **bắt buộc** cho mọi AI agent làm việc trong repo này. Vi ph
 | WebGL | OGL | ^1.0.11 |
 | Bản đồ | Mapbox GL JS | ^3.33.0 |
 | Hosting dự kiến | Vercel + Supabase Cloud | — |
+| CI | GitHub Actions (`.github/workflows/ci.yml`: typecheck + lint + build) | — |
+| Scheduler | Supabase `pg_cron` + `pg_net` (trigger-only, gọi `src/app/api/sync/*`) | xem `supabase/migrations/` |
+| LLM gateway | 9Router self-host (`router.studev.net`) — sinh lời khuyên AQI (`src/lib/ninerouter.ts`), model `ag/gemini-3.8-flash-low` | server-side only, `NINEROUTER_API_KEY` |
 
 Môi trường: Node 22, npm. Supabase **dùng project cloud có sẵn**, không chạy local. Biến môi trường: xem `.env.example`; **không commit secret**.
 
@@ -35,10 +39,14 @@ Cấu trúc chính:
 
 ```text
 src/app/                 # routes (App Router)
+src/app/api/             # API routes (tầng Model) — sync/*, jobs/*, locations, air-quality/*, weather/*, advisories/*, me/*, map/*
+src/app/auth/callback/   # đổi OAuth code lấy session (Supabase Auth)
+src/proxy.ts             # refresh session Supabase mỗi request (Next.js 16: middleware.ts -> proxy.ts)
 src/components/ui/       # shadcn/ui components (neumorphism theo design.md)
 src/components/providers/# provider client (Lenis, ...)
-src/lib/                 # utils, supabase clients (client.ts / server.ts)
+src/lib/                 # utils, supabase clients (client/server/admin/middleware.ts), open-meteo.ts, ninerouter.ts
 src/stores/              # Zustand stores
+supabase/migrations/     # migration DB có version (Supabase CLI), xem docs/specs/2026-10-22-backend-schema.md
 docs/  pa/               # tài liệu đồ án
 design.md                # palette + quy chuẩn UI
 ```
@@ -47,7 +55,21 @@ Lệnh: `npm run dev` · `npm run build` · `npm run lint` · `npx tsc --noEmit`
 
 Khi nâng/đổi version hoặc thêm thư viện: **cập nhật bảng trên trong cùng commit**.
 
-## 3. Thay đổi lớn / schema phải qua Spec-Driven và được duyệt
+## 3. Architecture: MVVM
+
+**MVVM là kiến trúc chính thức của dự án.** Ba lớp:
+
+| Lớp | Vai trò | Vị trí trong repo |
+| --- | --- | --- |
+| **Model** | Dữ liệu domain, business logic, truy cập nguồn dữ liệu (Supabase, Open-Meteo — OpenAQ đã loại khỏi MVP, xem `docs/specs/2026-10-22-backend-schema.md`), tính toán dự báo/ngưỡng cảnh báo, gọi LLM gateway (9Router) sinh lời khuyên | `src/lib/` (supabase clients, data access, domain logic), Next.js API routes (`src/app/api/`) |
+| **View** | UI thuần, **không chứa business logic, không tự fetch/transform data** | `src/app/**/page.tsx`, `src/components/` (Server/Client Components) |
+| **ViewModel** | Cầu nối Model ↔ View: giữ state, gọi Model, expose dữ liệu/hành động đã xử lý cho View | `src/stores/` (Zustand) + custom hooks `src/hooks/` |
+
+**Rule bắt buộc:** Component trong `src/app` / `src/components` không gọi trực tiếp `@supabase/supabase-js` hay `fetch` nguồn ngoài; phải qua hook/store ở `src/stores` hoặc `src/hooks`. View chỉ nhận props/state đã sẵn sàng hiển thị.
+
+Thêm thư mục `src/hooks/` khi tạo custom hook đóng vai trò ViewModel; không đặt logic nghiệp vụ trong hook nếu hook đó chỉ nên là tiện ích thuần UI — ranh giới Model/ViewModel phải rõ.
+
+## 4. Thay đổi lớn / schema phải qua Spec-Driven và được duyệt
 
 - Thay đổi lớn gồm: schema DB (bảng, cột, index, RLS, function, cron), kiến trúc, auth, tích hợp nguồn dữ liệu ngoài, thay đổi stack.
 - Quy trình: **viết spec → xin approve → mới implement**. Không code trước khi có approve rõ ràng của người dùng.
@@ -55,14 +77,14 @@ Khi nâng/đổi version hoặc thêm thư viện: **cập nhật bảng trên t
 - Implement phải khớp spec đã duyệt. Cần lệch spec → cập nhật spec và xin duyệt lại.
 - Mọi thay đổi schema phải qua migration có version; không sửa tay trên dashboard Supabase rồi bỏ qua repo.
 
-## 4. UI: vẽ trước, làm đúng như đã vẽ
+## 5. UI: vẽ trước, làm đúng như đã vẽ
 
 - Với mọi thay đổi có UI: **phải vẽ trước** (wireframe/mockup — Figma, ảnh, hoặc HTML preview) và được người dùng xác nhận **trước khi** sửa code.
 - Bản vẽ phải tuân theo [design.md](./design.md) (palette + Neumorphism).
 - Code UI phải **khớp chính xác** bản vẽ: bố cục, màu, khoảng cách, trạng thái. Không tự ý thêm/bớt/đổi.
 - Muốn đổi so với bản vẽ → vẽ lại, xin duyệt lại.
 
-## 5. Commit convention
+## 6. Commit convention
 
 Dùng [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/):
 
@@ -79,7 +101,7 @@ Dùng [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0
 - Ví dụ: `feat(map): add Mapbox AQI layer`, `docs: add AGENTS.md`.
 - Không `--no-verify`, không force-push lên nhánh dùng chung.
 
-## 6. Test: không tự ý viết
+## 7. Test: không tự ý viết
 
 - **Không** tự viết test (kể cả file `*.test.*`, `*.spec.*`). Chỉ viết khi người dùng yêu cầu, hoặc agent **đề xuất và được duyệt**.
 - Khi đề xuất: trình bày **đầy đủ kịch bản test** (phạm vi, test case, dữ liệu, kết quả mong đợi, công cụ) và chờ duyệt, rồi mới viết và chạy.

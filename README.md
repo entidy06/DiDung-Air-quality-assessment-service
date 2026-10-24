@@ -2,7 +2,7 @@
 
 **DiDung** là đồ án môn **Introduction to Software Engineering (HCMUS)**, định hướng xây dựng ứng dụng web responsive giúp người dùng theo dõi chất lượng không khí (PM2.5/AQI), thời tiết và — khi dữ liệu được kiểm chứng — nguy cơ ngập do mưa, triều cường tại TP.HCM. Hệ thống hướng tới việc hỗ trợ quyết định khi ra ngoài bằng dự báo ngắn hạn, hiển thị nguồn dữ liệu và các cảnh báo theo ngưỡng cá nhân.
 
-> **Trạng thái dự án:** đang trong giai đoạn đề xuất/kế hoạch và chuẩn bị yêu cầu – thiết kế. Repository hiện chủ yếu chứa tài liệu; **chưa có bản ứng dụng được xác nhận là đã triển khai**. Công nghệ, chức năng, deadline và phạm vi dưới đây là kế hoạch, trừ khi có ghi chú khác.
+> **Trạng thái dự án (23/10/2026):** phần **backend** (schema DB, API routes, đồng bộ dữ liệu Open-Meteo, lời khuyên AQI bằng LLM) đã được viết và **áp dụng lên một Supabase Cloud project thật** — xem minh chứng ở mục 3 và 7. **Frontend/UI chưa được xây dựng**, đang chờ wireframe được duyệt theo `AGENTS.md` §5. Các phần còn ở giai đoạn kế hoạch (tính năng chưa chốt scope, lộ trình PA) vẫn ghi theo PA0/PA1, trừ khi có ghi chú "đã triển khai" kèm minh chứng cụ thể.
 >
 > **Lưu ý về scope:** PA0 ban đầu coi dự báo mưa và cảnh báo ngập/triều cường là Must-have. Bản dự thảo PA1 đề xuất tập trung MVP vào PM2.5/AQI và đưa cảnh báo ngập ra khỏi MVP do chưa xác thực được nguồn dữ liệu. **Đây là thay đổi cần được nhóm và TA xác nhận**, không phải quyết định đã được phê duyệt. Xem [Quản lý phạm vi](#quản-lý-phạm-vi-và-quyết-định-chưa-chốt).
 
@@ -36,49 +36,54 @@ Bảng này phân biệt **phạm vi đã trình bày trong PA0** với **địn
 
 ## 3. Dữ liệu và công nghệ dự kiến
 
-### Nguồn dữ liệu đang xem xét
+### Nguồn dữ liệu
 
-- [OpenAQ](https://docs.openaq.org/): số đo quan trắc (ví dụ PM2.5), tùy trạm thực sự hiện diện và chất lượng dữ liệu tại TP.HCM.
-- [Open-Meteo Weather](https://open-meteo.com/en/docs): dữ liệu thời tiết và dự báo, bao gồm mưa, gió, độ ẩm; độ phân giải/phạm vi phải được kiểm tra.
-- [Open-Meteo Air Quality](https://open-meteo.com/en/docs/air-quality-api): sản phẩm chất lượng không khí từ **mô hình**, không đồng nhất với số đo trạm.
-- Bảng triều/nguồn quan trắc triều và thông tin điểm ngập từ các nguồn công khai: **chưa xác thực tính sẵn có, quyền sử dụng và độ tin cậy**. Không tuyên bố cảnh báo ngập là tính năng đang chạy.
-- Các địa điểm được hỗ trợ sẽ được xác định bằng khảo sát độ phủ dữ liệu trong PA2.
+- **[OpenAQ](https://docs.openaq.org/) — đã loại khỏi MVP (quyết định 22/10/2026).** Test thật `GET /v3/locations` quanh TP.HCM (bán kính 25km) chỉ còn **1 sensor low-cost còn sống**, 2 trạm chính phủ đã ngừng từ 2016/2025 — độ phủ quá mỏng để làm nguồn chính thức. Chi tiết: `docs/specs/2026-10-22-backend-schema.md` mục 3.1–3.2.
+- **[Open-Meteo](https://open-meteo.com/en/docs) — nguồn duy nhất của MVP**, không cần API key: [Weather Forecast API](https://open-meteo.com/en/docs) (lưới ~9-11km, ECMWF/GFS/ICON) và [Air Quality API](https://open-meteo.com/en/docs/air-quality-api) (lưới ~45km, CAMS Global). **Cả hai đều là dữ liệu mô hình (modeled), không phải số đo tại trạm** — mọi response API nội bộ đánh dấu rõ `data_type: "modeled"`.
+- Bảng triều/điểm ngập: **chưa xác thực tính sẵn có, quyền sử dụng và độ tin cậy**. Không tuyên bố cảnh báo ngập là tính năng đang chạy.
+- Địa điểm hỗ trợ: toàn bộ **168 phường/xã/đặc khu** theo địa giới hành chính mới của TP.HCM (sau sáp nhập 2025), đã geocode và seed vào DB (xem mục 7).
 
-### Kiến trúc đề xuất theo PA1 mới (chưa triển khai)
+### Kiến trúc — phần backend đã triển khai
 
-Phần **3.2 Technology Stack** của [PA1 đang biên tập trên Google Drive](https://docs.google.com/document/d/1ViqEjQ4qF7A6XEkFdJJiVY0neLwfp7jm/edit?usp=drivesdk&ouid=112474567247972889222&rtpof=true&sd=true) đã chuyển sang **Next.js + shadcn/ui, Supabase và Vercel**. Đây là stack **được ghi trong bản PA1 mới**, chưa phải hệ thống được chứng minh đang hoạt động.
+Stack theo PA1 mục 3.2: **Next.js + shadcn/ui, Supabase, Vercel**, kiến trúc **MVVM** (chi tiết quy tắc ở `AGENTS.md` §3). Phần sau **đã viết code và đã áp dụng lên Supabase project thật** (không còn là đề xuất):
 
 ```text
-OpenAQ / Open-Meteo / nguồn được duyệt
+Open-Meteo (Weather + Air Quality API)
                   │
-     Đồng bộ định kỳ + chuẩn hóa dữ liệu
-     (cơ chế gọi API ngoài cần technical spike)
+   Supabase pg_cron + pg_net (trigger-only, giờ chẵn)
+     gọi HTTP vào Next.js API routes bên dưới
                   │
-       Supabase Cloud (PostgreSQL)
-         - dữ liệu đo và dữ liệu mô hình
-         - dữ liệu người dùng và ngưỡng cảnh báo
-         - kết quả dự báo / thông báo
+   src/app/api/sync/{weather,air-quality-model,advisories}
+   src/app/api/jobs/evaluate-alerts
+   (business logic nằm ở đây, không ở trong Postgres function)
                   │
-     Next.js (API/backend + web frontend)
-              + shadcn/ui
+       Supabase Cloud (PostgreSQL) — 10 bảng, RLS theo auth.uid()
+         provinces, locations (168 phường/xã), air_quality_model,
+         weather_data, forecasts, advisories, profiles,
+         user_locations, alert_thresholds, notifications
                   │
-     Responsive dashboard / bản đồ / biểu đồ
+   src/app/api/{locations,air-quality,weather,advisories,me,map}/*
+   (đọc, dùng RLS public-read hoặc user-scoped qua Supabase Auth)
                   │
-             Vercel hosting
+     Frontend Next.js + shadcn/ui  ← CHƯA XÂY (chờ wireframe)
+                  │
+             Vercel hosting  ← CHƯA DEPLOY
 ```
 
-| Thành phần | Lựa chọn trong PA1 mới | Trạng thái |
+| Thành phần | Lựa chọn | Trạng thái |
 | --- | --- | --- |
-| Frontend | **Next.js + shadcn/ui** (nền tảng React) | Theo PA1 bản cập nhật; chờ kiểm chứng triển khai |
-| Backend/API | **Next.js** (API/server-side) | Theo PA1; cách triển khai route/server actions cần thiết kế |
-| Database | **Supabase** (managed PostgreSQL) | Theo PA1; chưa có bằng chứng schema/migration trên repository |
-| Scheduler / xử lý định kỳ | **Supabase pg_cron** | Theo PA1; cần kiểm chứng luồng lấy dữ liệu API ngoài, retry và giới hạn quota |
-| Hosting / deployment | **Vercel (Next.js) + Supabase Cloud** | Đề xuất; kiểm tra cấu hình, free-tier và giới hạn runtime trước khi chốt |
-| Testing & CI | **Vitest**, **Playwright** (ứng viên), **GitHub Actions** (dự kiến) | Chưa coi là đã thiết lập khi chưa có test/workflow runs |
+| Frontend | Next.js + shadcn/ui | Scaffold chạy được (`npm run dev`), **UI tính năng chưa xây** — chờ wireframe duyệt theo `AGENTS.md` §5 |
+| Backend/API | Next.js API routes | **Đã triển khai**: `sync/*`, `jobs/evaluate-alerts`, `locations`, `air-quality/{current,history,forecast}`, `weather/current`, `advisories/current`, `me/*` (profile, thresholds, notifications), `map/snapshot`, `auth/callback` |
+| Auth | Supabase Auth (`@supabase/ssr`) | **Đã triển khai**: session refresh qua `src/proxy.ts`, trigger tự tạo `profiles` khi signup, callback OAuth. Google OAuth cần cấu hình Client ID/Secret trên Dashboard (bước thủ công, chưa làm) |
+| Database | Supabase Cloud (PostgreSQL) | **Đã triển khai và đã push lên project thật** (ref `jwwbvfxgygynzwtbhbno`): 10 migration, 168 locations đã seed, verify qua REST API |
+| Scheduler | Supabase `pg_cron` + `pg_net` (trigger-only) | Migration đã viết và push, Vault `cron_secret` đã cấu hình khớp — nhưng **cron chưa chạy thật**, 3 migration còn placeholder `<domain-production>` (cần domain Vercel thật) |
+| LLM gateway (lời khuyên AQI) | 9Router self-host (`router.studev.net`), OpenAI-compatible | **Đã triển khai** (`src/lib/ninerouter.ts`) — ngoài phạm vi PA1 gốc, bổ sung theo quyết định trong quá trình phát triển |
+| Hosting / deployment | Vercel (Next.js) + Supabase Cloud | **Chưa deploy** — domain thật chưa có, 3 cron job trên vẫn chặn vì placeholder |
+| Testing & CI | GitHub Actions (`ci.yml`) | CI **đã chạy** typecheck + lint + build trên push/PR. **Chưa có test suite** — theo `AGENTS.md` §7, không tự viết test khi chưa được duyệt |
 
-**Điểm cần đồng bộ trong chính tài liệu PA1:** Mục **3.3 Hardware and Operating Environment** vẫn nhắc đến Python/Docker và dịch vụ container riêng từ phương án cũ, trong khi **3.2 đã chuyển sang Next.js/Supabase/Vercel**. Nhóm cần cập nhật 3.3 và phần giải thích lý do chọn công nghệ để thống nhất trước khi khóa kiến trúc. README ưu tiên liệt kê đúng lựa chọn mới ở 3.2, không khẳng định những chi tiết triển khai chưa được thử nghiệm.
+**Điểm cần đồng bộ trong chính tài liệu PA1:** Mục **3.3 Hardware and Operating Environment** vẫn nhắc đến Python/Docker và dịch vụ container riêng từ phương án cũ, trong khi **3.2 đã chuyển sang Next.js/Supabase/Vercel**. Nhóm cần cập nhật 3.3 để thống nhất với phần backend đã triển khai thực tế nêu trên.
 
-Dự báo sẽ ưu tiên **baseline minh bạch và có kiểm chứng**; các mô hình ML (ví dụ mô hình cây) chỉ được sử dụng khi phù hợp dữ liệu lịch sử và tốt hơn baseline trên tập đánh giá tách theo thời gian. Các chỉ số như MAE/RMSE phải được báo cáo từ kết quả thực tế, không suy đoán.
+Dự báo ngắn hạn ở MVP **dùng trực tiếp phần dự báo có sẵn trong response Open-Meteo** (`air_quality_model`/`weather_data` đã chứa cả giờ tương lai trong cùng 1 series), chưa có mô hình baseline tự huấn luyện riêng. Bảng `forecasts` (dự báo tự tính) đã có trong schema nhưng **chưa có job nào ghi vào bảng này** — chỉ dùng khi nhóm thực sự xây baseline/ML và so sánh được với Open-Meteo trên tập đánh giá tách theo thời gian, báo cáo MAE/RMSE từ kết quả thực tế.
 
 ## 4. Thành viên và trách nhiệm
 
@@ -156,30 +161,55 @@ Mẫu thông tin minh chứng ngắn trong Jira: **Deliverable | URL | Version/c
 ```text
 .
 ├── README.md
+├── AGENTS.md              # Quy tắc bắt buộc cho AI agent; kiến trúc MVVM
+├── .github/workflows/     # CI: typecheck + lint + build (ci.yml)
+├── src/
+│   ├── app/
+│   │   ├── api/           # sync/*, jobs/*, locations, air-quality/*, weather/*, advisories/*, me/*, map/*
+│   │   └── auth/callback/ # đổi OAuth code lấy session
+│   ├── proxy.ts           # refresh session Supabase mỗi request (Next.js 16)
+│   ├── components/        # ui/ (shadcn), providers/
+│   ├── lib/                # supabase clients (client/server/admin/middleware), open-meteo.ts, ninerouter.ts
+│   └── stores/            # Zustand
+├── supabase/migrations/   # migration DB có version (10 file, đã push lên project thật)
 ├── pa/
 │   ├── PA0/               # PA0 PDF đã lưu
-│   ├── PA1/               # Chỗ lưu PA1 PDF + editable source khi được review
+│   ├── PA1/               # PA1 PDF đã lưu trên main
 │   ├── PA2/
 │   ├── PA3/
 │   ├── PA4/
 │   └── PA5/
 └── docs/
+    ├── specs/            # Spec kỹ thuật đã duyệt (schema, cron, seed data)
     ├── requirements/     # Dự kiến: SRS, use cases, acceptance criteria
     ├── design/           # Dự kiến: C4/UML, UI/UX, ADRs
     ├── test/             # Dự kiến: test plan, cases, reports
     ├── management/
-    │   ├── weekly/       # Hiện có W2-status.docx
+    │   ├── weekly/       # Hiện có W2/W3-status.docx
     │   ├── meetings/     # Chưa có trên main; cần tạo khi có minutes
-    │   └── evidence/     # Chưa có trên main; kế hoạch Evidence Index
+    │   └── evidence/     # Evidence Index + Decision Log
     └── ai-usage/
-        └── week2/        # Hiện có ntdat-logs.md
+        └── week2/, week3/
 ```
 
-Trạng thái thực tế ở thời điểm cập nhật README: `/pa/PA1/` chưa có PDF/source trên `main`; `/src/` và GitHub Actions workflow chưa hiện diện. **Không được xem kế hoạch này là bằng chứng ứng dụng hoặc CI đã chạy.**
+Trạng thái thực tế ở thời điểm cập nhật README (23/10/2026): `src/` chạy được (`npm run dev`/`build` pass), CI (`.github/workflows/ci.yml`) đã thiết lập và chạy typecheck/lint/build trên push/PR — nhưng **CI chưa chạy test** (chưa có test suite, theo AGENTS.md §7 không tự viết test khi chưa được duyệt).
+
+Migration DB (`supabase/migrations/`, 10 file) đã **`db push` thành công lên Supabase Cloud project thật** (project ref `jwwbvfxgygynzwtbhbno`). Đã xác minh qua REST API: 168/168 locations TP.HCM đã seed (`GET /rest/v1/locations` trả `Content-Range: 0-0/168`), Vault secret `cron_secret` khớp với `CRON_SECRET` trong môi trường. API routes backend đã viết đầy đủ và build/typecheck/lint pass, nhưng **cron jobs chưa chạy thật** — 3 migration cron (`setup_cron_sync_trigger`, `add_advisories_cron`, `add_evaluate_alerts_cron`) còn placeholder `<domain-production>`, cần domain Vercel thật sau khi deploy mới sửa và chạy được. **UI/frontend chưa được xây dựng** — chờ wireframe được duyệt theo AGENTS.md §5.
 
 ### Phát triển trên máy cá nhân
 
-Repository chưa công bố mã nguồn ứng dụng và quy trình chạy ổn định nên **chưa có lệnh cài đặt/chạy thử chính thức**. Khi nhóm bổ sung code, cần cập nhật README bằng các bước thiết lập môi trường, file `.env.example` (không chứa secrets), migrations, lệnh chạy backend/frontend, seed test data và test commands có thể tái hiện.
+Không dùng Docker — stack chạy serverless (Vercel + Supabase Cloud), không có service tự host nào cần đóng gói container (xem PA1 mục 3.3). Chỉ cần:
+
+1. **Node 22** (khớp `.nvmrc`/`engines` trong `package.json`; dùng `nvm use` nếu có nvm). Không cần Python/Docker.
+2. `npm install`.
+3. Copy `.env.example` → `.env.local`, điền `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (Project Settings > API Keys, hệ key mới `sb_publishable_...`/`sb_secret_...` — lấy từ Supabase project cloud có sẵn, hỏi người giữ project), `NEXT_PUBLIC_MAPBOX_TOKEN`. **Không commit `.env.local`.**
+4. `npm run dev` — chạy tại `localhost:3000`.
+
+Kiểm tra trước khi push: `npx tsc --noEmit`, `npm run lint`, `npm run build` — cũng là 3 bước CI (`.github/workflows/ci.yml`) chạy tự động trên PR/push vào `main`.
+
+Migration database (`supabase/migrations/`) áp dụng qua Supabase CLI (`npx supabase link`, `npx supabase db push`) — chỉ người giữ quyền truy cập Supabase project mới chạy được, xem `docs/specs/2026-10-22-backend-schema.md`.
+
+**Đăng nhập Google OAuth**: không cấu hình được bằng code — phải vào Supabase Dashboard (Authentication > Providers > Google) nhập Client ID/Secret tạo từ Google Cloud Console, và thêm `<domain>/auth/callback` vào Redirect URLs của provider đó (và của Google Cloud Console). Phần code (`src/proxy.ts`, `src/app/auth/callback/route.ts`) đã sẵn sàng, chỉ còn bước cấu hình thủ công này.
 
 ## 8. Tài liệu và liên kết
 
