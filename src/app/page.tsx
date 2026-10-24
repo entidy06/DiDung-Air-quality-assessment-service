@@ -1,16 +1,20 @@
-import { Button } from "@/components/ui/button";
-
-export default function Home() {
-  return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col items-center justify-center gap-8 p-6">
-      <div className="w-full rounded-lg bg-card p-10 text-center shadow-neu">
-        <h1 className="text-3xl font-bold">DiDung</h1>
-        <p className="mt-2">Hỗ trợ quyết định khi ra ngoài tại TP. Hồ Chí Minh</p>
-        <div className="mt-8 flex justify-center gap-4">
-          <Button variant="primary">Bắt đầu</Button>
-          <Button>Tìm hiểu thêm</Button>
-        </div>
-      </div>
-    </main>
-  );
+import { Hero } from "./_components/landing/hero";
+import { Story } from "./_components/story/story";
+import { Features } from "./_components/landing/features";
+import { Sources } from "./_components/landing/sources";
+import { FinalCta } from "./_components/landing/final-cta";
+import { ProfilePanel } from "./_components/live/account-panels";
+import { redirect } from "next/navigation";
+import { landingAuthRedirect } from "@/lib/auth-navigation";
+export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const authRedirect = landingAuthRedirect(await searchParams);
+  if (authRedirect) redirect(authRedirect);
+  return <main id="main-content">
+    <Hero />
+    <Story />
+    <Features />
+    <Sources />
+    <section className="wrap account-section" id="account" aria-label="Tài khoản của bạn"><ProfilePanel /></section>
+    <FinalCta />
+  </main>;
 }
