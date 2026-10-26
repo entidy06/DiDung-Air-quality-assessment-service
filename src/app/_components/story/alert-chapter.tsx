@@ -1,4 +1,4 @@
-import { LiveAlertPanel as AlertPanel } from "../live/account-panels";
+import { AlertPanel } from "../demo/alert-panel";
 export function AlertChapter() {
   return (<section className="chapter" id="chapter-alert" aria-labelledby="alert-title">
     <div className="chapter-copy">

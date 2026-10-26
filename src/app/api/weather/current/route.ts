@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { authenticatedClient, unauthorizedResponse } from "@/lib/api/require-user";
 
 export async function GET(request: Request) {
+  const supabase = await authenticatedClient();
+  if (!supabase) return unauthorizedResponse();
   const { searchParams } = new URL(request.url);
   const locationId = searchParams.get("locationId");
   if (!locationId) {
     return NextResponse.json({ error: "Thiếu locationId" }, { status: 400 });
   }
 
-  const supabase = await createClient();
   const { data, error } = await supabase
     .from("weather_data")
     .select(

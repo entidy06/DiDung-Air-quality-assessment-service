@@ -1,9 +1,9 @@
-export const AUTH_LANDING = "/#chapter-air";
+export const AUTH_LANDING = "/app";
 
 export function authFailurePath(code?: string | null) {
   const params = new URLSearchParams({ auth_error: "1" });
   if (code && /^[a-z0-9_]{1,80}$/.test(code)) params.set("auth_error_code", code);
-  return `/login?${params}`;
+  return `/auth?${params}`;
 }
 
 export function authFailureMessage(code?: string | null) {

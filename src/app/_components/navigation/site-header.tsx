@@ -17,7 +17,7 @@ export function SiteHeader() {
     </nav>
     <div className="header-actions">
       <LandingLink className="button small" section="chapter-alert">Ngưỡng & thông báo</LandingLink>
-      {user ? <LandingLink className="button small primary" section="account">Tài khoản <span aria-hidden="true">↓</span></LandingLink> : <Link className="button small primary" href="/login">Đăng nhập <span aria-hidden="true">↗</span></Link>}
+      {user ? <LandingLink className="button small primary" section="account">Tài khoản <span aria-hidden="true">↓</span></LandingLink> : <Link className="button small primary" href="/auth">Đăng nhập <span aria-hidden="true">↗</span></Link>}
     </div>
   </header>;
 }

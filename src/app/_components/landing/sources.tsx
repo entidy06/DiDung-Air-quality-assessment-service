@@ -16,7 +16,7 @@ export function Sources() {
       </details>
       <details>
         <summary>DiDung hiện hỗ trợ điều gì?</summary>
-        <p>DiDung kết nối API không khí, thời tiết, lời khuyên, lịch sử, dự báo, bản đồ và cảnh báo cá nhân. Các trang chức năng dùng dữ liệu backend; trang /demo có nhãn minh họa riêng. Cảnh báo ngập, nhiệt độ, chỉ đường và thông báo đẩy chưa thuộc phạm vi hiện tại.</p>
+        <p>DiDung kết nối API không khí, thời tiết, lời khuyên, lịch sử, dự báo, bản đồ và cảnh báo cá nhân. Các phần trên landing chỉ minh họa; dữ liệu từ backend nằm trong khu vực sau đăng nhập. Cảnh báo ngập, chỉ đường và thông báo đẩy chưa thuộc phạm vi hiện tại.</p>
       </details>
       <LandingLink className="text-link" section="source-model">Tìm hiểu dữ liệu mô hình ↓</LandingLink>
     </div>

@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./experience.css";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { SiteHeader } from "./_components/navigation/site-header";
-import { SiteFooter } from "./_components/navigation/site-footer";
 import { AppProvider } from "./_components/live/app-provider";
-import { LiveToolbar } from "./_components/live/live-toolbar";
 export const metadata: Metadata = {
   title: {
     default: "DiDung — Một chút chuẩn bị, một ngày dễ chịu",
@@ -19,10 +17,7 @@ export default function RootLayout({ children, }: Readonly<{
     <body>
       <a className="skip" href="#main-content">Đến nội dung chính</a>
       <AppProvider>
-        <SiteHeader />
-        <LiveToolbar />
         {children}
-        <SiteFooter />
       </AppProvider>
     </body>
   </html>);

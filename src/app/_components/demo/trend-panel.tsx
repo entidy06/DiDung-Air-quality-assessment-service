@@ -5,7 +5,7 @@ export function TrendPanel() {
   return (<div className="soft-panel trend-panel">
     <div className="panel-top">
       <h3>Một ngày, nhiều nhịp thở.</h3>
-      <span className="pill">VÍ DỤ</span>
+      <span className="pill">MINH HỌA</span>
     </div>
     <div className="segmented" role="group" aria-label="Khoảng thời gian biểu đồ minh họa">
       <button type="button" data-period="history" aria-pressed={period === "history"} onClick={() => setPeriod("history")}>24 giờ qua</button>
@@ -33,9 +33,9 @@ export function TrendPanel() {
       </g>
       <path id="chart-area" fill="var(--sage)" opacity=".18" d={chart.area}>
       </path>
-      <path id="chart-line" fill="none" stroke="var(--olive)" strokeWidth="5" strokeLinecap="round" d={chart.path} strokeDasharray={chart.dash}>
+      <path key={chart.path} id="chart-line" className="demo-chart-line" fill="none" stroke="var(--olive)" strokeWidth="5" strokeLinecap="round" d={chart.path} strokeDasharray={chart.dash}>
       </path>
-      <circle id="chart-dot" cx="254" r="7" fill="var(--olive)" cy={chart.dotY}>
+      <circle id="chart-dot" cx="563" r="7" fill="var(--olive)" cy={chart.dotY}>
       </circle>
     </svg>
     <p className="data-note" id="chart-caption">{chart.caption}</p>
