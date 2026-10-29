@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { authenticatedClient, unauthorizedResponse } from "@/lib/api/require-user";
 import { aqiToLevel } from "@/lib/air-quality";
 
 // Phục vụ bản đồ (hướng B) — 1 lần gọi trả AQI hiện tại của toàn bộ location đang active,
 // tránh để frontend phải gọi /api/air-quality/current cho từng location (168 lần).
 export async function GET() {
-  const supabase = await createClient();
+  const supabase = await authenticatedClient();
+  if (!supabase) return unauthorizedResponse();
   const now = new Date();
   const windowStart = new Date(now.getTime() - 3 * 60 * 60 * 1000).toISOString();
 

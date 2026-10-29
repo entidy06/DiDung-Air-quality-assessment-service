@@ -1,0 +1,14 @@
+export type Location = { id: string; name: string; slug: string; latitude: number | string; longitude: number | string };
+export type Numeric = number | string | null;
+export type Reading = { valid_at: string; pm2_5: Numeric; us_aqi: Numeric; european_aqi?: Numeric };
+export type AirReading = Reading & { source: string; fetched_at: string; data_type: "modeled" };
+export type WeatherReading = { valid_at: string; precipitation: Numeric; precipitation_probability: Numeric; relative_humidity: Numeric; wind_speed: Numeric; uv_index: Numeric; source: string; fetched_at: string };
+export type Advisory = { valid_at: string; summary: string; action: string; note: string | null; model: string };
+export type Series = { data_type: "modeled"; items: Reading[] };
+export type MapItem = Omit<Location, "id"> & { location_id: string; valid_at: string | null; pm2_5: Numeric; us_aqi: Numeric; level: string | null };
+export type Snapshot = { data_type: "modeled"; items: MapItem[] };
+export type Metric = "aqi" | "pm25";
+export type Threshold = { id: string; location_id: string; metric: Metric; threshold_value: Numeric; is_active: boolean; created_at: string };
+export type Notice = { id: string; location_id: string; metric: Metric; metric_value: Numeric; title: string; body: string; is_read: boolean; created_at: string };
+export type Notifications = { items: Notice[]; unread_count: number };
+export type Profile = { id: string; display_name: string | null; created_at: string };

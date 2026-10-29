@@ -1,23 +1,29 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { authFailurePath, safeAuthDestination } from "@/lib/auth-navigation";
 
-// Supabase OAuth (Google, ...) redirect về đây sau khi người dùng đồng ý —
-// đổi "code" lấy session rồi set cookie, không cần tạo profile thủ công
-// (trigger handle_new_user đã tự tạo dòng public.profiles khi auth.users có user mới).
+function authRedirect(url: string) {
+  const response = NextResponse.redirect(url);
+  response.headers.set("Cache-Control", "no-store");
+  return response;
+}
+
+/** This route is the sole owner of PKCE code exchange; browser auto-exchange is disabled. */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
+  const destination = safeAuthDestination(searchParams.get("next"), origin);
+  const failure = (code?: string | null) => authRedirect(new URL(authFailurePath(code), origin).href);
+  if (searchParams.has("error") || searchParams.has("error_code")) return failure(searchParams.get("error_code") ?? searchParams.get("error"));
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/";
+  if (!code) return failure();
 
-  if (code) {
+  try {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
-    }
-  }
-
-  // Chưa có trang /auth/error riêng (UI đang chờ wireframe theo AGENTS.md §5) —
-  // tạm redirect về "/" kèm query để frontend tự quyết định hiển thị lỗi thế nào.
-  return NextResponse.redirect(`${origin}/?auth_error=1`);
+    if (!error) return authRedirect(destination);
+    // A re-opened callback must not discard a session established by the first visit.
+    const { data } = await supabase.auth.getUser();
+    if (data.user) return authRedirect(destination);
+    return failure(error.code);
+  } catch { return failure(); }
 }

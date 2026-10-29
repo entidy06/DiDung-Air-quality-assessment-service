@@ -1,4 +1,4 @@
-# design.md — Design System
+﻿# design.md — Design System
 
 Phong cách UI toàn site: **Neumorphism (Soft UI)**. Mọi UI phải tuân theo file này; bản vẽ UI (AGENTS.md §4) cũng vậy.
 
