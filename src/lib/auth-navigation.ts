@@ -4,8 +4,8 @@ export function defaultPathForRole(role: AppRole) {
   return role === "admin" ? "/admin" as const : "/app" as const;
 }
 
-export function safeAuthRequestPath(raw: string | null | undefined) {
-  if (!raw?.startsWith("/") || raw.startsWith("//") || /[\\\u0000-\u0020]/.test(raw)) return null;
+export function safeAuthRequestPath(raw: string | string[] | null | undefined) {
+  if (typeof raw !== "string" || !raw.startsWith("/") || raw.startsWith("//") || /[\\\u0000-\u0020]/.test(raw)) return null;
   try {
     const target = new URL(raw, "https://didung.local");
     if (target.origin !== "https://didung.local" || target.pathname.startsWith("/auth/")) return null;

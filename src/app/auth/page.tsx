@@ -7,7 +7,7 @@ import { getViewer } from "@/lib/auth/authorization";
 
 export const metadata: Metadata = { title: "Đăng nhập" };
 
-export default async function AuthPage({ searchParams }: { searchParams: Promise<{ auth_error?: string; auth_error_code?: string; error?: string; error_code?: string; next?: string }> }) {
+export default async function AuthPage({ searchParams }: { searchParams: Promise<{ auth_error?: string; auth_error_code?: string; error?: string; error_code?: string; next?: string | string[] }> }) {
   const viewer = await getViewer();
   if (viewer.role) redirect(defaultPathForRole(viewer.role));
   const query = await searchParams;
