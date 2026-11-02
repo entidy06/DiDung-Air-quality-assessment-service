@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { landingAuthRedirect } from "@/lib/auth-navigation";
+import { defaultPathForRole, landingAuthRedirect } from "@/lib/auth-navigation";
+import { getViewer } from "@/lib/auth/authorization";
 import { SiteHeader } from "./_components/navigation/site-header";
 import { SiteFooter } from "./_components/navigation/site-footer";
 import { Hero } from "./_components/landing/hero";
@@ -14,9 +14,8 @@ import { LandingDemoToolbar } from "./_components/demo/landing-toolbar";
 export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const authRedirect = landingAuthRedirect(await searchParams);
   if (authRedirect) redirect(authRedirect);
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (user) redirect("/app");
+  const viewer = await getViewer();
+  if (viewer.role) redirect(defaultPathForRole(viewer.role));
   return <>
     <SiteHeader />
     <LandingDemoToolbar />
