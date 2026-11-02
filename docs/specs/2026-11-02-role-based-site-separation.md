@@ -1,6 +1,6 @@
 # Tách site theo role: landing, user app và admin
 
-**Trạng thái:** APPROVED  
+**Trạng thái:** APPROVED
 **Ngày:** 2026-11-02
 
 ## Bối cảnh và mục tiêu

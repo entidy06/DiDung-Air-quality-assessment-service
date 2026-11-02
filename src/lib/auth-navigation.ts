@@ -28,13 +28,17 @@ export function authFailureMessage(code?: string | null) {
 }
 
 export function safeAuthDestination(raw: string | null, origin: string, role: AppRole) {
-  const fallback = new URL(defaultPathForRole(role), origin).href;
+  return new URL(authPathForRole(raw, role), origin).href;
+}
+
+export function authPathForRole(raw: string | null, role: AppRole) {
+  const fallback = defaultPathForRole(role);
   const path = safeAuthRequestPath(raw);
   if (!path) return fallback;
   try {
-    const target = new URL(path, origin);
+    const target = new URL(path, "https://didung.local");
     if (target.pathname.startsWith("/admin") && role !== "admin") return fallback;
-    return target.href;
+    return `${target.pathname}${target.search}${target.hash}`;
   } catch { return fallback; }
 }
 
