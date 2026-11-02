@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { authenticatedClient, unauthorizedResponse } from "@/lib/api/require-user";
 
 // Phục vụ biểu đồ xu hướng (hướng C) — chỉ trả các mốc valid_at trong quá khứ.
 // Mặc định 24h gần nhất nếu không truyền from/to.
 export async function GET(request: Request) {
+  const supabase = await authenticatedClient();
+  if (!supabase) return unauthorizedResponse();
   const { searchParams } = new URL(request.url);
   const locationId = searchParams.get("locationId");
   if (!locationId) {
@@ -14,7 +16,6 @@ export async function GET(request: Request) {
   const from = searchParams.get("from") ?? new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
   const to = searchParams.get("to") ?? now.toISOString();
 
-  const supabase = await createClient();
   const { data, error } = await supabase
     .from("air_quality_model")
     .select("valid_at, pm2_5, european_aqi, us_aqi")

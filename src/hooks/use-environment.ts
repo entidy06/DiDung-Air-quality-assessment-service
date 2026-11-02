@@ -21,9 +21,9 @@ export function useWeather() {
   const advice = useApiResource<Advisory>(id ? `/api/advisories/current?locationId=${encodeURIComponent(id)}` : null);
   const tiles = [
     { label: "Khả năng mưa", icon: "☂", value: numberText(weather.data?.precipitation_probability), unit: "%" },
-    { label: "Chỉ số UV", icon: "☼", value: numberText(weather.data?.uv_index), unit: "" },
-    { label: "Gió", icon: "≋", value: numberText(weather.data?.wind_speed), unit: " km/h" },
     { label: "Độ ẩm", icon: "♧", value: numberText(weather.data?.relative_humidity), unit: "%" },
+    { label: "Gió", icon: "≋", value: numberText(weather.data?.wind_speed), unit: " km/h" },
+    { label: "Lượng mưa", icon: "☂", value: numberText(weather.data?.precipitation), unit: " mm" },
   ];
   return { weather, advice, tiles, time: timeText(weather.data?.valid_at), stale: isOld(weather.data?.valid_at), adviceTime: timeText(advice.data?.valid_at) };
 }
