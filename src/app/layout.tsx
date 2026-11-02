@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./experience.css";
+import "./admin.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { AppProvider } from "./_components/live/app-provider";
 export const metadata: Metadata = {

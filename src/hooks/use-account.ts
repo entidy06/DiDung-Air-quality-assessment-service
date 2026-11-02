@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { useLocationStore } from "@/stores/location-store";
 import { useApiResource } from "./use-api-resource";
@@ -71,6 +72,7 @@ export function useNotifications(scope: string) {
   return { resource, mutation, items, unread: resource.data?.unread_count ?? 0, markRead };
 }
 export function useProfile(scope: string) {
+  const router = useRouter();
   const user = useAuthStore(state => state.user);
   const mutation = useAccountMutation(scope);
   const resource = useApiResource<Profile>(user ? "/api/me" : null, scope, mutation.revision);
@@ -78,6 +80,6 @@ export function useProfile(scope: string) {
   const [signOutError, setSignOutError] = useState("");
   const [signingOut, setSigningOut] = useState(false);
   const save = () => mutation.run(() => apiRequest("/api/me", { method: "PATCH", body: JSON.stringify({ display_name: (draft ?? resource.data?.display_name ?? "").trim() }) }), "Đã lưu tên hiển thị.");
-  const signOut = async () => { setSigningOut(true); setSignOutError(""); const result = await useAuthStore.getState().signOut(); if (result.error) { setSignOutError(result.error); setSigningOut(false); } };
+  const signOut = async () => { setSigningOut(true); setSignOutError(""); const result = await useAuthStore.getState().signOut(); if (result.error) { setSignOutError(result.error); setSigningOut(false); return; } router.replace("/"); router.refresh(); };
   return { resource, mutation, displayName: draft ?? resource.data?.display_name ?? "", setDraft, save, signOut, signOutError, signingOut, email: user?.email ?? "" };
 }
