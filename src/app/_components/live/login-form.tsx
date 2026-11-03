@@ -1,7 +1,7 @@
 "use client";
 import { useAuthForm } from "@/hooks/use-auth-form";
-export function LoginForm({ callbackError = "" }: { callbackError?: string }) {
-  const vm = useAuthForm();
+export function LoginForm({ callbackError = "", nextPath }: { callbackError?: string; nextPath?: string }) {
+  const vm = useAuthForm(nextPath);
   return <section className="exp-auth-card exp-raised" aria-labelledby="login-title">
     <h2 id="login-title">{vm.mode === "login" ? "Đăng nhập" : "Tạo tài khoản"}</h2>
     <p>{vm.mode === "login" ? "Chào mừng bạn quay lại DiDung." : "Tạo tài khoản để lưu khu vực và ngưỡng riêng."}</p>

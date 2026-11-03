@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DiDung - Admin shell va trang 403</title>
+  <style>
+    :root {
+      --cream: #fcecd8;
+      --brown: #6e3511;
+      --olive: #597928;
+      --forest: #486c2f;
+      --sage: #91ac67;
+      --butter: #f1e5a1;
+      --orange: #ef6905;
+      --crimson: #8b2626;
+      --neu-light: #fff9f0;
+      --neu-dark: #d9c7ae;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--cream); }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--cream);
+      color: var(--brown);
+      font: 16px/1.5 Arial, sans-serif;
+    }
+    button, a { font: inherit; }
+    button { cursor: pointer; }
+    :is(a, button):focus-visible {
+      outline: 3px solid var(--orange);
+      outline-offset: 4px;
+    }
+
+    .preview-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 62px;
+      padding: 10px 18px;
+      background: var(--butter);
+      box-shadow: 0 6px 14px rgb(110 53 17 / 16%);
+    }
+    .preview-toolbar strong { margin-right: 12px; font-size: 13px; }
+    .preview-toolbar button {
+      border: 0;
+      border-radius: 12px;
+      padding: 9px 14px;
+      background: var(--cream);
+      color: var(--brown);
+      box-shadow: 4px 4px 8px var(--neu-dark), -4px -4px 8px var(--neu-light);
+      font-weight: 700;
+    }
+    .preview-toolbar button[aria-selected="true"] {
+      background: var(--olive);
+      color: var(--cream);
+      box-shadow: inset 4px 4px 8px var(--forest), inset -4px -4px 8px var(--sage);
+    }
+
+    .preview-stage { min-height: calc(100vh - 62px); }
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .admin-shell {
+      display: grid;
+      grid-template-columns: 264px minmax(0, 1fr);
+      min-height: calc(100vh - 62px);
+    }
+    .admin-sidebar {
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - 62px);
+      padding: 30px 22px 24px;
+      background: var(--olive);
+      color: var(--cream);
+      box-shadow: 10px 0 24px rgb(72 108 47 / 24%);
+    }
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .brand {
+      color: inherit;
+      font-size: 29px;
+      font-weight: 800;
+      letter-spacing: -.06em;
+      text-decoration: none;
+    }
+    .role-stamp {
+      border: 1px solid var(--cream);
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .12em;
+    }
+    .admin-nav {
+      display: grid;
+      gap: 8px;
+      margin-top: 48px;
+    }
+    .admin-nav a, .admin-nav span {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 45px;
+      border-radius: 14px;
+      padding: 10px 13px;
+      color: var(--cream);
+      text-decoration: none;
+    }
+    .admin-nav a {
+      background: var(--forest);
+      box-shadow: inset 4px 4px 8px rgb(56 87 35 / 55%), inset -4px -4px 8px rgb(145 172 103 / 45%);
+      font-weight: 700;
+    }
+    .admin-nav span { opacity: .82; }
+    .admin-nav small {
+      border-radius: 999px;
+      padding: 2px 7px;
+      background: var(--butter);
+      color: var(--brown);
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .admin-account {
+      margin-top: auto;
+      padding-top: 40px;
+    }
+    .admin-account p {
+      margin: 0 0 14px;
+      overflow-wrap: anywhere;
+      font-size: 14px;
+    }
+    .sidebar-action {
+      border: 0;
+      padding: 0;
+      background: none;
+      color: var(--cream);
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    .admin-content {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 42px 48px 72px;
+    }
+    .admin-topline {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--forest);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0;
+      color: var(--brown);
+      font-size: clamp(38px, 5vw, 64px);
+      line-height: 1.03;
+      letter-spacing: -.055em;
+    }
+    .admin-topline > p {
+      max-width: 310px;
+      margin: 7px 0 0;
+      text-align: right;
+    }
+    .admin-welcome {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 220px;
+      gap: 28px;
+      margin-top: 70px;
+      border-radius: 28px;
+      padding: 38px;
+      background: var(--cream);
+      box-shadow: 8px 8px 16px var(--neu-dark), -8px -8px 16px var(--neu-light);
+    }
+    .admin-welcome h2 {
+      margin: 0 0 12px;
+      font-size: clamp(27px, 3vw, 40px);
+      line-height: 1.12;
+      letter-spacing: -.035em;
+    }
+    .admin-welcome p { max-width: 620px; margin: 0; }
+    .access-card {
+      align-self: stretch;
+      display: grid;
+      align-content: center;
+      border-radius: 19px;
+      padding: 22px;
+      background: var(--cream);
+      box-shadow: inset 6px 6px 12px var(--neu-dark), inset -6px -6px 12px var(--neu-light);
+    }
+    .access-card span {
+      color: var(--forest);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .12em;
+    }
+    .access-card strong { margin-top: 6px; font-size: 20px; }
+    .admin-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 28px;
+    }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      border: 0;
+      border-radius: 15px;
+      padding: 11px 20px;
+      background: var(--cream);
+      color: var(--brown);
+      box-shadow: 4px 4px 8px var(--neu-dark), -4px -4px 8px var(--neu-light);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .button.primary { background: var(--olive); color: var(--cream); }
+    .button:active { box-shadow: inset 6px 6px 12px var(--neu-dark), inset -6px -6px 12px var(--neu-light); }
+    .admin-note {
+      margin-top: 50px;
+      padding-top: 20px;
+      border-top: 1px solid var(--sage);
+      font-size: 13px;
+    }
+
+    .forbidden-shell {
+      min-height: calc(100vh - 62px);
+      display: grid;
+      place-items: center;
+      padding: 44px 22px;
+      background:
+        radial-gradient(circle at 18% 18%, var(--butter) 0 7%, transparent 7.2%),
+        var(--cream);
+    }
+    .forbidden-card {
+      position: relative;
+      width: min(680px, 100%);
+      border-radius: 30px;
+      padding: 48px;
+      background: var(--cream);
+      box-shadow: 12px 12px 24px var(--neu-dark), -12px -12px 24px var(--neu-light);
+    }
+    .forbidden-code {
+      position: absolute;
+      top: -31px;
+      right: 34px;
+      display: grid;
+      place-items: center;
+      width: 84px;
+      height: 62px;
+      border-radius: 18px;
+      background: var(--crimson);
+      color: var(--cream);
+      box-shadow: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light);
+      font-size: 25px;
+      font-weight: 800;
+    }
+    .forbidden-card .brand { display: inline-block; margin-bottom: 55px; }
+    .forbidden-card h1 { max-width: 520px; font-size: clamp(36px, 6vw, 58px); }
+    .forbidden-card > p { max-width: 540px; margin: 20px 0 0; font-size: 18px; }
+    .forbidden-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
+
+    @media (max-width: 760px) {
+      .preview-toolbar { align-items: stretch; gap: 7px; padding: 9px 12px; }
+      .preview-toolbar strong { display: none; }
+      .preview-toolbar button { flex: 1; padding: 8px 9px; font-size: 13px; }
+      .admin-shell { grid-template-columns: 1fr; }
+      .admin-sidebar { min-height: auto; padding: 18px 20px; box-shadow: 0 8px 18px rgb(72 108 47 / 24%); }
+      .brand-lockup { justify-content: flex-start; }
+      .admin-nav { display: flex; gap: 6px; margin-top: 17px; overflow-x: auto; padding-bottom: 6px; }
+      .admin-nav a, .admin-nav span { flex: 0 0 auto; min-height: 40px; padding: 8px 11px; }
+      .admin-nav span small { display: none; }
+      .admin-account { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-top: 12px; padding-top: 0; }
+      .admin-account p { margin: 0; }
+      .admin-content { padding: 32px 20px 55px; }
+      .admin-topline { display: block; }
+      .admin-topline > p { margin-top: 14px; text-align: left; }
+      .admin-welcome { grid-template-columns: 1fr; gap: 22px; margin-top: 40px; padding: 26px; }
+      .access-card { min-height: 120px; }
+      .forbidden-card { padding: 38px 25px 30px; }
+      .forbidden-code { right: 24px; }
+      .forbidden-card .brand { margin-bottom: 48px; }
+      .forbidden-actions { display: grid; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="preview-toolbar" role="tablist" aria-label="Chọn trạng thái bản vẽ">
+    <strong>Bản vẽ đã duyệt</strong>
+    <button type="button" role="tab" data-show="admin" aria-selected="true">Admin shell</button>
+    <button type="button" role="tab" data-show="forbidden" aria-selected="false">Trang 403</button>
+  </div>
+
+  <div class="preview-stage">
+    <section id="admin" class="screen active" aria-label="Bản vẽ admin shell">
+      <div class="admin-shell">
+        <aside class="admin-sidebar">
+          <div class="brand-lockup">
+            <a class="brand" href="#admin">DiDung</a>
+            <span class="role-stamp">ADMIN</span>
+          </div>
+          <nav class="admin-nav" aria-label="Điều hướng quản trị">
+            <a href="#admin" aria-current="page">Tổng quan</a>
+            <span>Người dùng <small>Sắp có</small></span>
+            <span>Dữ liệu <small>Sắp có</small></span>
+            <span>Đồng bộ <small>Sắp có</small></span>
+            <span>Cấu hình <small>Sắp có</small></span>
+          </nav>
+          <div class="admin-account">
+            <p>admin@didung.vn</p>
+            <button class="sidebar-action" type="button">Đăng xuất</button>
+          </div>
+        </aside>
+
+        <main class="admin-content" id="main-content">
+          <div class="admin-topline">
+            <div>
+              <p class="eyebrow">Khu vực quản trị</p>
+              <h1>Tổng quan</h1>
+            </div>
+            <p>Không gian riêng dành cho tài khoản được chọn quản trị DiDung.</p>
+          </div>
+
+          <section class="admin-welcome" aria-labelledby="welcome-title">
+            <div>
+              <p class="eyebrow">Quyền đã xác minh</p>
+              <h2 id="welcome-title">Xin chào, Quản trị viên.</h2>
+              <p>Khu vực quản trị đang được chuẩn bị. Các chức năng quản lý người dùng, dữ liệu và đồng bộ sẽ được bổ sung theo từng giai đoạn đã duyệt.</p>
+              <div class="admin-actions">
+                <a class="button primary" href="#user-site">Xem user site</a>
+                <button class="button" type="button">Đăng xuất</button>
+              </div>
+            </div>
+            <div class="access-card" aria-label="Trạng thái quyền">
+              <span>ADMIN ACCESS</span>
+              <strong>Đã xác minh</strong>
+            </div>
+          </section>
+
+          <p class="admin-note">Phase này chỉ thiết lập ranh giới truy cập. Chưa có dữ liệu hoặc thao tác quản trị thật.</p>
+        </main>
+      </div>
+    </section>
+
+    <section id="forbidden" class="screen" aria-label="Bản vẽ trang không có quyền">
+      <main class="forbidden-shell" id="forbidden-main">
+        <section class="forbidden-card" aria-labelledby="forbidden-title">
+          <span class="forbidden-code">403</span>
+          <a class="brand" href="#forbidden">DiDung</a>
+          <p class="eyebrow">Giới hạn quyền truy cập</p>
+          <h1 id="forbidden-title">Bạn không có quyền vào khu vực quản trị.</h1>
+          <p>Tài khoản này đã đăng nhập và vẫn có thể sử dụng user site. Chỉ tài khoản được chọn làm admin mới mở được khu vực quản trị.</p>
+          <div class="forbidden-actions">
+            <a class="button primary" href="#user-site">Về user site</a>
+            <button class="button" type="button">Đăng xuất</button>
+          </div>
+        </section>
+      </main>
+    </section>
+  </div>
+
+  <script>
+    const tabs = [...document.querySelectorAll("[data-show]")];
+    const screens = [...document.querySelectorAll(".screen")];
+    const show = (target) => {
+      for (const item of tabs) item.setAttribute("aria-selected", String(item.dataset.show === target));
+      for (const screen of screens) screen.classList.toggle("active", screen.id === target);
+    };
+    for (const tab of tabs) {
+      tab.addEventListener("click", () => {
+        const target = tab.dataset.show;
+        history.replaceState(null, "", `#${target}`);
+        show(target);
+      });
+    }
+    if (location.hash === "#forbidden") show("forbidden");
+  </script>
+</body>
+</html>

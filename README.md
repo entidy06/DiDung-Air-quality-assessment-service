@@ -9,7 +9,8 @@
 ### Giao diện và ranh giới dữ liệu
 
 - `/` giữ bố cục và câu chuyện landing ban đầu, cùng navbar đã được chỉnh bo góc. AQI, PM2.5, chỉ số thời tiết và biểu đồ trong các panel là **minh họa ngẫu nhiên**, đổi khoảng bốn giây một lần và có nhãn rõ ràng. Biểu đồ chuyển động để cho thấy tính minh họa. Landing không hiển thị bản đồ trạm hoặc lời nhắc; khi người dùng chọn giảm chuyển động, các số giữ nguyên và biểu đồ không chạy animation.
-- `/auth` hỗ trợ Google OAuth và email/mật khẩu. `/app` chỉ dành cho người đã đăng nhập: khu vực được chọn, AQI, thời tiết, biểu đồ, bản đồ Mapbox, lời gợi ý và ngưỡng cá nhân dùng API dữ liệu thật. Các API đọc dữ liệu môi trường trả `401` cho khách; các API đồng bộ và cron giữ cơ chế xác thực riêng.
+- `/auth` hỗ trợ Google OAuth và email/mật khẩu. `/app` dành cho mọi tài khoản đã đăng nhập: khu vực được chọn, AQI, thời tiết, biểu đồ, bản đồ Mapbox, lời gợi ý và ngưỡng cá nhân dùng API dữ liệu thật. `/admin` chỉ dành cho tài khoản được chọn và hiện cung cấp admin shell, chưa có nghiệp vụ quản trị. Các API đọc dữ liệu môi trường trả `401` cho khách; các API đồng bộ và cron giữ cơ chế xác thực riêng.
+- Tài khoản Google OAuth và email/password đều bắt đầu với role `user`. Chỉ giá trị chính xác `app_metadata.app_role = "admin"`, do người quản lý project đặt trong Supabase Auth, mới cấp quyền admin. User mặc định vào `/app`; admin mặc định vào `/admin` và vẫn có thể dùng `/app`. Người đã đăng nhập không xem lại landing hoặc trang đăng nhập.
 - Cách tách này giúp người xem không nhầm số trong câu chuyện giới thiệu với dữ liệu hiện hành, đồng thời giữ ngưỡng và khu vực trong trải nghiệm cá nhân. Dashboard ghi nguồn, thời điểm hiệu lực và trạng thái thiếu dữ liệu. AQI Open-Meteo là **ước tính mô hình**, không phải số đo chính xác tại địa chỉ/phường; những khu vực gần nhau có thể cùng giá trị.
 - Hiện không xin quyền vị trí thiết bị vì backend chưa có ánh xạ tọa độ sang khu vực hỗ trợ. Người dùng chọn khu vực bằng danh sách, kể cả khi Mapbox không khả dụng.
 
@@ -219,6 +220,33 @@ Kiểm tra trước khi push: `npx tsc --noEmit`, `npm run lint`, `npm run build
 Migration database (`supabase/migrations/`) áp dụng qua Supabase CLI (`npx supabase link`, `npx supabase db push`) — chỉ người giữ quyền truy cập Supabase project mới chạy được, xem `docs/specs/2026-10-22-backend-schema.md`.
 
 **Đăng nhập Google OAuth**: không cấu hình được bằng code — phải vào Supabase Dashboard (Authentication > Providers > Google) nhập Client ID/Secret tạo từ Google Cloud Console, và thêm `<domain>/auth/callback` vào Redirect URLs của provider đó (và của Google Cloud Console). Phần code (`src/proxy.ts`, `src/app/auth/callback/route.ts`) đã sẵn sàng, chỉ còn bước cấu hình thủ công này.
+
+### Role và quyền truy cập
+
+| Người xem | Đích mặc định | Khu vực riêng được phép mở |
+| --- | --- | --- |
+| Guest | `/` | Không có |
+| User | `/app` | `/app` |
+| Admin | `/admin` | `/admin`, `/app` |
+
+Google OAuth và email/password không tự tạo admin. Ứng dụng chỉ công nhận chuỗi chính xác `app_metadata.app_role = "admin"`; role thiếu, sai kiểu hoặc có giá trị khác đều là user. Không sửa claim hệ thống `role: authenticated`, không dùng `user_metadata`, provider, email hoặc domain để cấp admin.
+
+**Cấp admin trong Supabase Dashboard:**
+
+1. Cho người được chọn đăng nhập một lần để Supabase tạo tài khoản.
+2. Mở **Authentication > Users**, rồi đối chiếu cả user ID và email.
+3. Giữ nguyên app metadata hiện có và thêm `"app_role": "admin"`; không ghi đè metadata provider.
+4. Yêu cầu user đăng xuất rồi đăng nhập lại để nhận token mới.
+5. Xác nhận tài khoản mặc định vào `/admin` và vẫn mở được `/app`.
+
+**Thu hồi admin:**
+
+1. Xóa `app_role` hoặc đổi giá trị khỏi `admin` trong app metadata.
+2. Yêu cầu user đăng xuất rồi đăng nhập lại.
+3. Nếu cần thu hồi ngay, revoke các session đang hoạt động của user trong Supabase Auth.
+4. Xác nhận `/admin` hiển thị trang 403 và `/app` vẫn hoạt động.
+
+Không đưa email, user ID, access token hoặc secret thật vào issue, commit hay log. Xem thiết kế bảo mật và rollback tại [`docs/specs/2026-11-02-role-based-site-separation.md`](docs/specs/2026-11-02-role-based-site-separation.md).
 
 ## 8. Tài liệu và liên kết
 
