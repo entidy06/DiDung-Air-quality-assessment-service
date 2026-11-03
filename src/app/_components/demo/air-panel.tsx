@@ -5,7 +5,7 @@ export function AirPanel() {
   return (<div className="soft-panel air-panel" id="try" data-state={scenario}>
     <div className="panel-top">
       <span className="location-label">⌖ Khu vực minh họa · TP.HCM</span>
-      <span className="pill">VÍ DỤ</span>
+      <span className="pill">MINH HỌA</span>
     </div>
     <div className="aqi-layout">
       <div>
@@ -37,9 +37,9 @@ export function AirPanel() {
       <span>Hiệu lực minh họa <strong>08:00 · UTC+7</strong>
       </span>
     </div>
-    <p className="data-note">Nguồn khi kết nối: Open-Meteo / CAMS · Dữ liệu mô hình</p>
+    <p className="data-note">Minh họa · không phải dữ liệu hiện tại. Dữ liệu thật từ Open-Meteo / CAMS chỉ có sau đăng nhập.</p>
     <fieldset className="scenarios">
-      <legend>Đổi tình huống để xem bản vẽ</legend>
+      <legend>Đổi tình huống minh họa</legend>
       <button type="button" data-scenario="good" aria-pressed={scenario === "good"} onClick={() => setScenario("good")}>Tốt</button>
       <button type="button" data-scenario="bad" aria-pressed={scenario === "bad"} onClick={() => setScenario("bad")}>Xấu</button>
       <button type="button" data-scenario="missing" aria-pressed={scenario === "missing"} onClick={() => setScenario("missing")}>Thiếu dữ liệu</button>

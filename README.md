@@ -2,9 +2,18 @@
 
 **DiDung** là đồ án môn **Introduction to Software Engineering (HCMUS)**, định hướng xây dựng ứng dụng web responsive giúp người dùng theo dõi chất lượng không khí (PM2.5/AQI), thời tiết và — khi dữ liệu được kiểm chứng — nguy cơ ngập do mưa, triều cường tại TP.HCM. Hệ thống hướng tới việc hỗ trợ quyết định khi ra ngoài bằng dự báo ngắn hạn, hiển thị nguồn dữ liệu và các cảnh báo theo ngưỡng cá nhân.
 
-> **Trạng thái dự án (23/10/2026):** phần **backend** (schema DB, API routes, đồng bộ dữ liệu Open-Meteo, lời khuyên AQI bằng LLM) đã được viết và **áp dụng lên một Supabase Cloud project thật** — xem minh chứng ở mục 3 và 7. **Frontend/UI chưa được xây dựng**, đang chờ wireframe được duyệt theo `AGENTS.md` §5. Các phần còn ở giai đoạn kế hoạch (tính năng chưa chốt scope, lộ trình PA) vẫn ghi theo PA0/PA1, trừ khi có ghi chú "đã triển khai" kèm minh chứng cụ thể.
+> **Trạng thái giao diện (27/10/2026):** giữ [landing cũ](docs/design/2026-10-25-navbar-rounded-preview.html), thay các panel trên landing thành minh họa; màn hình đăng nhập và dashboard sau đăng nhập theo [spec](docs/specs/2026-10-27-frontend-experience.md) và [bản vẽ HTML](docs/previews/2026-10-27-frontend-preview.html). Các phần lộ trình PA chưa chốt vẫn ghi theo PA0/PA1, trừ khi có ghi chú "đã triển khai" kèm minh chứng cụ thể.
 >
 > **Lưu ý về scope:** PA0 ban đầu coi dự báo mưa và cảnh báo ngập/triều cường là Must-have. Bản dự thảo PA1 đề xuất tập trung MVP vào PM2.5/AQI và đưa cảnh báo ngập ra khỏi MVP do chưa xác thực được nguồn dữ liệu. **Đây là thay đổi cần được nhóm và TA xác nhận**, không phải quyết định đã được phê duyệt. Xem [Quản lý phạm vi](#quản-lý-phạm-vi-và-quyết-định-chưa-chốt).
+
+### Giao diện và ranh giới dữ liệu
+
+- `/` giữ bố cục và câu chuyện landing ban đầu, cùng navbar đã được chỉnh bo góc. AQI, PM2.5, chỉ số thời tiết và biểu đồ trong các panel là **minh họa ngẫu nhiên**, đổi khoảng bốn giây một lần và có nhãn rõ ràng. Biểu đồ chuyển động để cho thấy tính minh họa. Landing không hiển thị bản đồ trạm hoặc lời nhắc; khi người dùng chọn giảm chuyển động, các số giữ nguyên và biểu đồ không chạy animation.
+- `/auth` hỗ trợ Google OAuth và email/mật khẩu. `/app` chỉ dành cho người đã đăng nhập: khu vực được chọn, AQI, thời tiết, biểu đồ, bản đồ Mapbox, lời gợi ý và ngưỡng cá nhân dùng API dữ liệu thật. Các API đọc dữ liệu môi trường trả `401` cho khách; các API đồng bộ và cron giữ cơ chế xác thực riêng.
+- Cách tách này giúp người xem không nhầm số trong câu chuyện giới thiệu với dữ liệu hiện hành, đồng thời giữ ngưỡng và khu vực trong trải nghiệm cá nhân. Dashboard ghi nguồn, thời điểm hiệu lực và trạng thái thiếu dữ liệu. AQI Open-Meteo là **ước tính mô hình**, không phải số đo chính xác tại địa chỉ/phường; những khu vực gần nhau có thể cùng giá trị.
+- Hiện không xin quyền vị trí thiết bị vì backend chưa có ánh xạ tọa độ sang khu vực hỗ trợ. Người dùng chọn khu vực bằng danh sách, kể cả khi Mapbox không khả dụng.
+
+Để chạy đầy đủ: điền các biến trong `.env.example`, bật Google provider trong Supabase Auth, cho phép URL `https://<domain>/auth/callback` (và URL localhost tương ứng) trong Supabase Redirect URLs, cấu hình callback Supabase tại Google OAuth, và cấp token Mapbox công khai `pk.*`. Tài khoản email có thể cần xác nhận theo cấu hình Supabase Cloud. Dashboard cần dữ liệu Open-Meteo đã được đồng bộ; nếu chưa có, từng thẻ sẽ báo trạng thái trống. Việc chặn các route API của ứng dụng **không thay đổi RLS public-read hiện có**; nếu cần bảo vệ dữ liệu ngay ở Supabase, phải duyệt một spec migration/RLS riêng.
 
 ## 1. Bài toán và người dùng
 
@@ -72,7 +81,7 @@ Open-Meteo (Weather + Air Quality API)
 
 | Thành phần | Lựa chọn | Trạng thái |
 | --- | --- | --- |
-| Frontend | Next.js + shadcn/ui | Scaffold chạy được (`npm run dev`), **UI tính năng chưa xây** — chờ wireframe duyệt theo `AGENTS.md` §5 |
+| Frontend | Next.js + shadcn/ui | Landing minh họa, đăng nhập và dashboard sau đăng nhập đã triển khai theo spec ngày 27/10/2026 |
 | Backend/API | Next.js API routes | **Đã triển khai**: `sync/*`, `jobs/evaluate-alerts`, `locations`, `air-quality/{current,history,forecast}`, `weather/current`, `advisories/current`, `me/*` (profile, thresholds, notifications), `map/snapshot`, `auth/callback` |
 | Auth | Supabase Auth (`@supabase/ssr`) | **Đã triển khai**: session refresh qua `src/proxy.ts`, trigger tự tạo `profiles` khi signup, callback OAuth. Google OAuth cần cấu hình Client ID/Secret trên Dashboard (bước thủ công, chưa làm) |
 | Database | Supabase Cloud (PostgreSQL) | **Đã triển khai và đã push lên project thật** (ref `jwwbvfxgygynzwtbhbno`): 10 migration, 168 locations đã seed, verify qua REST API |

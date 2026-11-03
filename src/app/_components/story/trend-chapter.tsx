@@ -1,4 +1,4 @@
-import { LiveTrendPanel as TrendPanel } from "../live/trend-panel";
+import { TrendPanel } from "../demo/trend-panel";
 export function TrendChapter() {
   return (<section className="chapter" id="chapter-trend" aria-labelledby="trend-title">
     <div className="chapter-copy">

@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { authenticatedClient, unauthorizedResponse } from "@/lib/api/require-user";
 
 export async function GET() {
-  const supabase = await createClient();
+  const supabase = await authenticatedClient();
+  if (!supabase) return unauthorizedResponse();
   const { data, error } = await supabase
     .from("locations")
     .select("id, name, slug, latitude, longitude")
