@@ -1,6 +1,6 @@
 # DiDung — Weekly Status Report W5
 
-26 Oct–1 Nov 2026 (UTC+7) · Prepared 04 Nov 2026 · v1.0
+26 Oct–1 Nov 2026 (UTC+7) · Prepared 04 Nov 2026 · v1.1
 
 ## Report Information
 
@@ -10,7 +10,7 @@
 | Week | W5: 26 Oct–1 Nov 2026 (UTC+7) |
 | Date of meeting | 27 Oct offline meeting is reported in W4; time, minutes and decisions require confirmation (Q5). |
 | Current phase / PA | PA2 — Requirements & SRS; conditional preparation for PA3. Gate not verified as passed. |
-| Prepared by | Võ Đình Cao Minh Hào (24127035); AI-assisted draft. Prepared 04 Nov 2026, v1.0. Hào reviews and edits all content before finalization; confirmation pending. |
+| Prepared by | Võ Đình Cao Minh Hào (24127035); AI-assisted draft. Prepared 04 Nov 2026, v1.1. Hào reviews and edits all content before finalization; confirmation pending. |
 | Overall status | AMBER (proposed): draft AC/RTM/review evidence exists; business-rule decisions, current independent approval and delivery evidence remain open. |
 
 Reporting cutoff: 1 Nov 2026 23:59:59 UTC+7. W6 is 2–8 Nov. This report is prepared on 4 Nov; later updates are labelled separately. N/V = not verified, not 0%.
@@ -53,7 +53,7 @@ PA3 entry conditions proposed: versioned SRS/RTM/AC with direct review; explicit
 | Close PA2 gate gaps; version SRS/RTM/AC; confirm BR-01/03/05 and optional scope. DID-40/43/46/47/53/54. | Tiến + Hiếu; Hào QA | Before PA3 baseline; exact date pending |
 | Integrate same-version editable/PDF PA2 and evidence; capture direct review and Moodle receipt if submitted. DID-56/57/58. | Hiếu + Đạt | 3 Nov planning target; actual evidence required |
 | PA3 handoff: FR/UC→architecture, API/data/auth contracts, UI states, owners and PA4 test backlog. Keep unapproved decisions explicit. | Hiếu technical; Tiến BA; Đạt UX; Hào QA | W6 (2–8 Nov), PM to confirm |
-| W5: Hào reviews/edits; AI self-check; send Nguyễn Thành Đạt v1.0 for independent review; resolve feedback, commit/link final revision. DID-60. | Hào; Đạt reviewer | 4 Nov 22:00 internal target; approval pending |
+| W5: Hào reviews/edits; send Nguyễn Thành Đạt v1.1 for independent review; resolve feedback, commit/link final revision. DID-60. | Hào; Đạt reviewer | 4 Nov 22:00 internal target; approval pending |
 
 W6 plan is consolidated at preparation time, not evidence of a plan approved at W5 close. The 3 Nov integration target is historical planning, not a newly promised date or official Moodle deadline. See Q6 for actual delivery and confirmed PA3 scheduling.
 
@@ -75,7 +75,7 @@ Owners/actions above are proposed follow-ups unless already established by the l
 | --- | --- | --- | --- | --- |
 | Trương Lê Trung Hiếu | W4-reported; confirm Q5 | Not recorded as spoken update | Confirm meeting/actions and PA2 gate | Q1/Q5/Q6 |
 | Trần Minh Tiến | W4-reported; confirm Q5 | Not recorded as spoken update | Confirm BR decisions and baseline | Q1 |
-| Nguyễn Thành Đạt | W4-reported; confirm Q5 | Not recorded as spoken update | Validate frames; review W5 v1.0 | Q3/Q4 |
+| Nguyễn Thành Đạt | W4-reported; confirm Q5 | Not recorded as spoken update | Validate frames; review W5 v1.1 | Q3/Q4 |
 | Võ Đình Cao Minh Hào | W4-reported; confirm Q5 | Not recorded as spoken update | Review/edit W5; track peer feedback | Q4/Q7 |
 
 W4 records an offline meeting on 27 Oct with all four members, agreement on UI/template direction and exploratory flood/tide source research. This is a secondary, team-reported record; no independent W5 minutes/time/attendance evidence was supplied. The table is a confirmation checklist, not reconstructed spoken minutes. Prototype coverage in W4 is reported, not acceptance-tested. Ask Q5 before finalizing. [S4]
@@ -110,7 +110,7 @@ Both PR #9 and #10 have empty submitted-review lists in API readback; merge is n
 | Q1 | Tiến (BA), Hiếu (PM); DID-40/44/46/49 | Which SRS revision is the PA2 baseline? Confirm BR-01 AQI scale/calculation reference; BR-03 freshness per source; BR-05 comparator (> or ≥), equality, crossing vs sustained exceedance, eligible inputs and dedup event/window/timezone. Decide FR-11–13 deliver/defer and UC-12 actor. | Return dated decision table: ID, chosen value/rule, rationale/source, effective version, decision maker, examples at below/equal/above threshold and replay. Link Jira/Docs reply. |
 | Q2 | Hiếu (technical/source), Hào (QA); DID-43/45 | Which deployed provider/model/domain and HCMC coverage are used? Are data observed or modeled? What source/update/issue times, grid resolution, history semantics, refresh/quota, attribution and licence fit apply? Which NFR targets are agreed? | Provide non-secret sample request/response with coordinates/units/timestamps/provenance, source assessment/version, quota estimate, agreed NFR environment and measurement plan. No production/test-pass claim without evidence. |
 | Q3 | Đạt (Designer), Tiến / Hào; DID-50–53 | For each Must FR/UC, which versioned Figma frame/state satisfies the AC? Resolve FR-05 PM2.5 1–6h vs 24h AQI chart; FR-07 account-owned saved-location CRUD; loading/empty/stale/error/auth states. Which responsive/accessibility checks exist? | Return FR→UC→AC→SCR/frame URL matrix, desktop/mobile/error-state links, gap disposition, owner and date. Include measured contrast results and keyboard evidence only if actually checked. |
-| Q4 | Đạt (W5 independent reviewer); Hào (editor); DID-60 | Please read W5 v1.0. Are timeframe, counts, source links, PA2 gate, PA3 handoff, meeting attribution and pending labels accurate? Identify any unsupported claim or missing material task. | Reply on DID-60 or PR with exact version/commit reviewed, finding ID + section + severity + requested fix. After fixes, recheck and explicitly Approved or Changes requested; record actual date. AI self-review is separate. |
+| Q4 | Đạt (W5 independent reviewer); Hào (editor); DID-60 | Please read W5 v1.1. Are timeframe, counts, source links, PA2 gate, PA3 handoff, meeting attribution and pending labels accurate? Identify any unsupported claim or missing material task. | Reply on DID-60 or PR with exact version/commit reviewed, finding ID + section + severity + requested fix. After fixes, recheck and explicitly Approved or Changes requested; record actual date. Nguyễn Thành Đạt is the final reviewer; approval is pending his actual response. |
 | Q5 | Hiếu (chair), all four members | W4 reports an offline meeting on 27 Oct. Did it occur; at what time/place, who attended, what was actually decided and which actions were assigned? Is there a signed/acknowledged minutes link? | Provide actual timestamp/timezone, attendance confirmation, minutes/chat link, decisions and action→owner→due date. Do not treat prototype coverage mentioned in W4 as verified acceptance. |
 | Q6 | Hiếu (integration), Đạt (submission); DID-56/57/58 | What is the official Moodle PA2 deadline? Was PA2 submitted; which exact source/PDF revision and when? Which reviewer approved that revision? Which PA3 owners/dates are committed? | Provide Moodle instruction screenshot/link and receipt/timestamp, artifact checksum or commit, editable/PDF links, direct reviewer response and PA3 task IDs. Internal W5 deadline remains 4 Nov 22:00 UTC+7. |
 | Q7 | All task owners; Hiếu consolidates | Which tasks actually transitioned Done during 26 Oct–1 Nov UTC+7, and which were reopened? Were deadlines revised? Are defect/worklog data available? | Provide Jira history/export covering 25 Oct 17:00Z to 1 Nov 17:00Z, issue/owner/transition time and linked deliverable; state counting policy. Supply defect register or explicitly confirm not measured. |
@@ -119,21 +119,10 @@ Both PR #9 and #10 have empty submitted-review lists in API readback; merge is n
 
 | Item | Status / evidence |
 | --- | --- |
-| AI self-review | Content/timeframe/source/metric and layout checks by Codex; recorded separately from human approval. Findings and fixes below. |
 | Hào review/edit | AI drafts information; Võ Đình Cao Minh Hào reviews and edits all content before finalization. Full review/edit confirmation: PENDING. |
-| Independent reviewer | Nguyễn Thành Đạt, selected by Hào on 4 Nov. Review request: PENDING dispatch after AI self-review. Response/findings/recheck/approval: PENDING. |
-| Commit / PR | Report files prepared at docs/management/weekly/W5-status.docx and .md. Actual commit/PR and Jira links to be recorded after save; remote publication pending. |
+| Independent reviewer | Nguyễn Thành Đạt — final reviewer, selected by Hào on 4 Nov. Review requested on GitHub PR #13 (entidy06) and DID-60 (comment 10047): https://ntdat2428.atlassian.net/browse/DID-60?focusedCommentId=10047 . Response/findings/recheck/approval: PENDING. |
+| Commit / PR | Report files: docs/management/weekly/W5-status.docx and .md. Draft PR #13: https://github.com/entidy06/DiDung-Air-quality-assessment-service/pull/13 . Initial draft commit 077703a; current PR revision supersedes it. Jira DID-60 comment 10047 records the review request. Final review/approval by Nguyễn Thành Đạt Pending. |
 | Definition of Done | NOT COMPLETE while human review, feedback resolution/recheck and approval are pending. Saving a draft or Jira status does not establish completion. |
-
-### AI self-review findings and corrections
-
-| ID | Finding | Correction / recheck | Status |
-| --- | --- | --- | --- |
-| SR-01 | Current-main history included feature work merged in W6. | Split historical-main 1 commit from 5 W5-dated SHAs across current reachable refs; record merge targets. | Corrected |
-| SR-02 | Later PA2 edits and PDF could be mistaken for W5 completion. | Label 2–4 Nov updates; keep 3 Nov PDF and current approval claims out of W5 metrics. | Corrected |
-| SR-03 | Owner-reported prior SRS approval could be mistaken for direct W5 review. | Separate prior/current revisions and AI desk review; Đạt approval Pending. | Corrected |
-| SR-04 | W4 contains meeting assertions and unverified percentages. | Attribute meeting to W4; request confirmation; use N/V for all completion percentages. | Corrected |
-| SR-05 | AI log must describe drafting and full owner review without inventing completion. | Record AI drafting; Hào review/edit responsibility; confirmation Pending. | Corrected |
 
 ### Human findings / resolution / approval
 
@@ -141,9 +130,13 @@ PENDING — no human response received. Requested change, fix, recheck and appro
 
 ## AI Usage Log
 
-04 Nov 2026 — ChatGPT / Codex drafts information for Võ Đình Cao Minh Hào. Hào reviews and edits all content before finalization; confirmation pending. Nguyễn Thành Đạt independently reviews afterward; response/approval pending. AI self-review does not substitute for team review.
+04 Nov 2026 — ChatGPT / Codex drafts information for Võ Đình Cao Minh Hào. Hào reviews and edits all content before finalization; confirmation pending. Nguyễn Thành Đạt performs the final review; response/approval pending. Final review by Nguyễn Thành Đạt: PENDING.
 
 ## Sources and Evidence
+
+[PR13] [W5 draft PR — final review by Nguyễn Thành Đạt pending](https://github.com/entidy06/DiDung-Air-quality-assessment-service/pull/13)
+
+[RQ] [Review request sent to Đạt on DID-60](https://ntdat2428.atlassian.net/browse/DID-60?focusedCommentId=10047)
 
 [S1] [W5 source template / editable target](https://docs.google.com/document/d/1-29jS-b2d2ea3FcrYXizpvpc4TxXDPqM/edit)
 
