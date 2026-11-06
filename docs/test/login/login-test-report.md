@@ -99,9 +99,9 @@ Retest: developer xác nhận deployment SHA, auth modes và đích redirect; d�
 
 ## Review và điều kiện đóng
 
-- Commit evidence đầu tiên: [2f0e6b2](https://github.com/entidy06/DiDung-Air-quality-assessment-service/commit/2f0e6b2), đã push lên [nhánh QA](https://github.com/entidy06/DiDung-Air-quality-assessment-service/tree/codex/qa-login-evidence). Các cập nhật cuối theo lịch sử nhánh; PR đang chờ người dùng đăng nhập GitHub để tạo.
+- Commit evidence đầu tiên: [2f0e6b2](https://github.com/entidy06/DiDung-Air-quality-assessment-service/commit/2f0e6b2), cập nhật runtime/viewport [2341450](https://github.com/entidy06/DiDung-Air-quality-assessment-service/commit/2341450); đã push lên [nhánh QA](https://github.com/entidy06/DiDung-Air-quality-assessment-service/tree/codex/qa-login-evidence). [PR #14](https://github.com/entidy06/DiDung-Air-quality-assessment-service/pull/14) mở để review, chưa merge.
 - Jira comment kết quả/blocker: [10048](https://ntdat2428.atlassian.net/browse/DID-61?focusedCommentId=10048), đã đăng ngày 06/11/2026; task giữ In Progress.
-- Reviewer là thành viên khác: pending; chưa nhận sign-off. AI self-check không thay thế review của thành viên.
+- Reviewer: đã gửi yêu cầu Nguyễn Thành Đạt (`entidy06`) lúc 16:54 UTC+7 ngày 06/11/2026; [review request event](https://github.com/entidy06/DiDung-Air-quality-assessment-service/pull/14#event-35335385714). **Sign-off pending**; yêu cầu review không có nghĩa review đã hoàn tất. AI self-check không thay thế review của thành viên.
 - Bug fix/retest links: N/A, chưa mở Bug đã xác minh.
 - Không chuyển DID-61 sang Done khi các gap bắt buộc và review còn mở.
 - `git diff --check` và checksum ảnh đã kiểm tra; không sửa code ứng dụng, không tạo test tự động, không chạy build/lint/typecheck cho thay đổi chỉ gồm tài liệu/ảnh.
