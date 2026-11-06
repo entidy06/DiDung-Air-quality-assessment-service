@@ -91,6 +91,8 @@ Các giờ trong bảng là thời điểm lưu ảnh, không phải thời gian
 
 Cập nhật theo kiểm thử tay M01: **10 TC chính: 7 Pass, 0 Fail, 3 Blocked, 0 N/A**. Pass gồm TC-01/02/03/04/05/06/09; Blocked gồm TC-07/08/10. N/A chỉ ở subcase forgot password/remember me của TC-10; OAuth subcase đã thành công. Không đổi cả TC thành Pass khi chưa đủ bước.
 
+**Theo yêu cầu ghi nhận của người dùng: TC-LOGIN-07, TC-LOGIN-08 và TC-LOGIN-10 chưa Pass trong đợt kiểm thử này.** Ba TC giữ trạng thái **Blocked**, không phải lỗi sản phẩm đã được xác minh (Fail). Phần chưa Pass lần lượt là xử lý session hết hạn/không hợp lệ; gửi login khi mất mạng/lỗi server và thử lại; xác minh rate-limit khi nhập sai nhiều lần. Ghi nhận này hoàn tất việc cập nhật tài liệu theo yêu cầu, không tự chuyển ba TC sang Pass hoặc xác nhận toàn bộ chức năng login đạt yêu cầu.
+
 Chưa phát hiện lỗi sản phẩm có đủ bằng chứng để mở Jira Bug riêng. 404 `/auth` và `/app` được ghi nhận là **deployment/baseline gap**, chưa kết luận regression: local yêu cầu route này nhưng chưa biết production triển khai commit nào. Không dùng đọc source local để báo runtime Pass hay suy ra bypass xác thực.
 
 Blocker còn lại: TC-07 session hết hạn/invalid; TC-08 submit login lúc offline/timeout/5xx và retry; TC-10 rate-limit khi nhập sai nhiều lần (hoặc quyết định ngoài scope). Ngoài kết quả TC: deployment SHA và independent review vẫn chưa đủ. Các xác nhận về credentials hợp lệ, redirect, xử lý request trùng và giao diện đã được người dùng bổ sung, không còn ghi là blocker.
