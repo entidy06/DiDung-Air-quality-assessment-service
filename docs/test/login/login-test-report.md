@@ -1,6 +1,6 @@
 # Login QA — DID-61
 
-**Trạng thái: đang kiểm thử; chưa đủ điều kiện đóng task.** Đây là QA sớm, không phải xác nhận hoàn tất PA5. Kết quả chỉ áp dụng cho production được quan sát, không tự áp dụng cho commit local.
+**Trạng thái: đã có evidence thực thi; còn Blocked và chờ review, chưa đủ điều kiện đóng task.** Đây là QA sớm, không phải xác nhận hoàn tất PA5. Kết quả chỉ áp dụng cho production được quan sát, không tự áp dụng cho commit local.
 
 ## Môi trường và truy vết
 
@@ -8,10 +8,10 @@
 | --- | --- |
 | Task | [DID-61](https://ntdat2428.atlassian.net/browse/DID-61) |
 | Tester phụ trách | Võ Đình Cao Minh Hào; thực thi có hỗ trợ AI, chưa có independent human review |
-| Ngày thực thi | 06/11/2026, UTC+7; lượt đầu khoảng 16:34–16:46 |
+| Ngày thực thi | 06/11/2026, UTC+7; khoảng 16:34–16:52 |
 | Môi trường | [Production](https://didung-air-quality.vercel.app/), trang login `/login` |
 | Công cụ | Codex in-app browser, DOM/accessibility snapshot, screenshot JPEG; HTTP guest bằng curl không gửi cookie/Authorization |
-| Viewport | Mặc định ban đầu; responsive 390×844; desktop 1440×900. Không kiểm thử thiết bị di động thật |
+| Viewport | Ban đầu dùng kích thước yêu cầu 390×844/1440×900; kiểm tra sau phát hiện CSS width thực là 354/1309. Đã bổ sung lượt có `innerWidth/innerHeight` đúng 390×844 và 1440×900. Không kiểm thử thiết bị di động thật |
 | Commit production | **Chưa xác minh** — developer cần cung cấp deployment → Git SHA |
 | Commit local đối chiếu | `4ea8e578d0066b5c82deb5d4e4323669ea1e7a22`, không phải bằng chứng version production |
 | Nhánh evidence | `codex/qa-login-evidence`; không làm việc/push trên main |
@@ -38,15 +38,15 @@ Precondition chung: production truy cập được; guest trừ khi dòng ghi kh
 
 | ID | Precondition / test data | Steps | Expected result | Actual result / evidence | Status |
 | --- | --- | --- | --- | --- | --- |
-| TC-LOGIN-01 | QA-A có email/password hợp lệ; guest | Mở `/login`; người dùng tự nhập credentials; submit; kiểm tra URL và trạng thái tài khoản | Login thành công, tới đích đã thống nhất, trạng thái signed-in | OAuth đã thành công nhưng không thay thế ca email/password. Đang chờ người dùng hoàn tất handoff; đích chuẩn của build deploy chưa được xác nhận | Blocked |
+| TC-LOGIN-01 | QA-A có email/password hợp lệ; guest | Mở `/login`; người dùng tự nhập credentials; submit; kiểm tra URL và trạng thái tài khoản | Login thành công, tới đích đã thống nhất, trạng thái signed-in | Sau handoff do người dùng nhận nhập email/password, quan sát URL `/#chapter-air`, header Tài khoản, nút Đăng xuất, khu vực preferences khả dụng. Không quan sát trực tiếp thao tác submit/phương thức cuối cùng; đích chuẩn của build deploy chưa được developer xác nhận, nên chưa coi toàn ca email/password là Pass | Blocked |
 | TC-LOGIN-02 | QA-A; mật khẩu cố ý sai | Nhập email QA-A và mật khẩu sai; submit một lần; so sánh với TC-03 | Không đăng nhập; lỗi chung, không tiết lộ tài khoản có tồn tại hay dữ liệu nhạy cảm | Hiện `Invalid login credentials`, form được mở lại, cùng thông báo TC-03. Xóa cả hai trường trước khi chụp [E08](evidence/08-wrong-password-error-cleared-fields.jpg). Cần xác nhận QA-A có password login để phân biệt sai mật khẩu với OAuth-only | Blocked |
 | TC-LOGIN-03 | QA-N, mật khẩu giả; không tạo tài khoản `.invalid` | Mở `/login`; nhập QA-N và mật khẩu giả; Enter | Từ chối, thông báo chung, không stack trace/token | `Đang xử lý…`, tất cả điều khiển form disabled; sau đó `Invalid login credentials`, form enabled, URL vẫn `/login`; [E02](evidence/02-invalid-account.jpg) | Pass |
 | TC-LOGIN-04 | Chuỗi rỗng; QA-N; BAD-EMAIL | Submit hai trường rỗng; điền email hợp lệ nhưng để trống password rồi submit; nhập BAD-EMAIL rồi submit | Chặn form, chỉ ra trường cần sửa, focus đúng chỗ | Hai lần `Please fill out this field.` với focus lần lượt Email/Mật khẩu; BAD-EMAIL đưa focus Email, không rời form. [E01](evidence/01-invalid-email.jpg) chỉ minh chứng focus, không chụp được native tooltip | Pass |
-| TC-LOGIN-05 | QA-N; công cụ đếm request đã khử secret | Enter để submit; thử nhấn Login liên tiếp trong lúc pending; đối chiếu số auth requests | Enter tương đương click; pending ngăn gửi trùng, chỉ một request cho một thao tác | Enter thực sự gửi (TC-03); pending disabled đã quan sát. Chưa thực thi rapid click và chưa đếm request; không khẳng định chống duplicate hoàn chỉnh | Blocked |
+| TC-LOGIN-05 | QA-N; công cụ đếm request đã khử secret | Enter để submit; double-click Login; đối chiếu số auth requests | Enter tương đương click; pending ngăn gửi trùng, chỉ một request cho một thao tác | Enter thực sự gửi (TC-03); double-click lúc 16:51 đưa form vào pending disabled, rồi trả lỗi credentials và enabled lại. Chưa đếm request; không khẳng định chống duplicate hoàn chỉnh | Blocked |
 | TC-LOGIN-06 | Phiên QA-A qua OAuth đã thành công | Vào `/profile`; reload; Đăng xuất; Back; mở trực tiếp `/profile` | Reload giữ signed-in; logout chấm dứt UI session; Back/URL không lộ dữ liệu riêng | Có tài khoản/nút Đăng xuất sau reload; logout xong hiện lời mời login. Back về `/#chapter-air` có lời mời login; URL `/profile` cũng chặn dữ liệu riêng. [E06](evidence/06-oauth-authenticated-header.jpg), [E07](evidence/07-after-logout-profile.jpg). Không kiểm tra token replay/server revocation | Pass |
 | TC-LOGIN-07 | Guest; thêm session hết hạn/invalid được developer chuẩn bị | Mở `/profile`; GET `/api/me` không cookie; lặp với session hết hạn/invalid | Không lộ dữ liệu riêng; API từ chối, UI hướng dẫn login | Guest `/profile` chỉ có lời mời login [E05](evidence/05-guest-profile.jpg); API HTTP 401, `{"error":"Unauthorized"}`. Chưa có session hết hạn/invalid được chuẩn bị | Blocked |
 | TC-LOGIN-08 | QA-N; điều kiện offline/5xx có kiểm soát | Submit, quan sát pending; ngắt mạng/fault injection; khôi phục và retry | Loading rõ, không treo vô hạn; lỗi an toàn, retry được | Pending và hồi phục sau lỗi credentials đã thấy; chưa mô phỏng lỗi mạng/server. Timeout công cụ và DNS sandbox không được coi là lỗi của sản phẩm | Blocked |
-| TC-LOGIN-09 | Desktop 1440×900, mobile 390×844; bàn phím | Kiểm tra form, label, focus; dùng Tab/Enter; kiểm tra validation và error alert | Nội dung không chồng lấp; label/focus nhận biết; tương tác được bằng bàn phím | Form có accessible name Email/Mật khẩu, `alert` cho credentials error, focus ring; Enter submit được. [E03](evidence/03-mobile-390.jpg), E08. Chưa kiểm tra đầy đủ thứ tự Tab; không tuyên bố audit screen reader/contrast hoàn chỉnh | Blocked |
+| TC-LOGIN-09 | Desktop CSS 1440×900, mobile CSS 390×844; bàn phím | Kiểm tra form, label, focus; dùng Tab/Enter; kiểm tra validation và error alert | Nội dung không chồng lấp; label/focus nhận biết; tương tác được bằng bàn phím | Accessible name Email/Mật khẩu, `alert`, focus ring, Enter hoạt động. Tab: Email → Mật khẩu → Login → Google. DOM `scrollWidth == innerWidth` ở 390 và 1440; không có input/button/link vượt mép theo bounding rect tại 390. [E10](evidence/10-mobile-css-390.jpg)/[E11](evidence/11-desktop-css-1440.jpg) bổ sung đúng CSS width; ảnh mobile bị cắt phần mép phải của bề mặt capture, chưa xác nhận visual toàn mép trên thiết bị thật. Không coi ảnh capture này là Bug ứng dụng hoặc audit WCAG hoàn chỉnh | Blocked |
 | TC-LOGIN-10 | QA-A Google OAuth đã được người dùng cho phép | Google → chọn đúng QA-A → consent cơ bản → callback; kiểm tra tùy chọn forgot/remember và rate limit theo scope | OAuth trả về app và có session; tính năng không có được ghi N/A | OAuth về `/#chapter-air`, `/profile` signed-in (E06). Không thấy forgot password/remember me trên form: N/A cho UI build này. Rate limit chưa kiểm tra, cần scope/ngưỡng được thống nhất, không brute force production | Blocked |
 
 ## Evidence và ghi chép đã khử dữ liệu
@@ -63,6 +63,10 @@ Precondition chung: production truy cập được; guest trừ khi dòng ghi kh
 | E06 | 16:43:12 | `/profile`; header signed-in sau OAuth; [ảnh](evidence/06-oauth-authenticated-header.jpg) |
 | E07 | 16:43:55 | `/profile`; guest sau logout và truy cập trực tiếp; [ảnh](evidence/07-after-logout-profile.jpg) |
 | E08 | 16:44:28 | `/login`; lỗi mật khẩu sai, đã xóa credentials; [ảnh](evidence/08-wrong-password-error-cleared-fields.jpg) |
+| E10 | 16:50:56 | `/login`; DOM CSS 390×844; [ảnh](evidence/10-mobile-css-390.jpg), có giới hạn capture mép phải |
+| E11 | 16:50:56 | `/login`; DOM CSS 1440×900; [ảnh](evidence/11-desktop-css-1440.jpg) |
+
+E03 là cấu hình yêu cầu 390px ban đầu, chưa dùng làm bằng chứng NFR-07 vì CSS width sau đó được phát hiện là 354px. E10/E11 đã đo `innerWidth/innerHeight` trực tiếp. Số ảnh nhảy E08 → E10: capture E09 không chứa tín hiệu xác minh nên đã loại trước khi commit; không dùng ảnh trống làm evidence.
 
 Ghi chép HTTP (không có credentials):
 
@@ -89,17 +93,18 @@ Tạm thời: **10 TC chính: 3 Pass, 0 Fail, 7 Blocked, 0 N/A**. N/A chỉ ở 
 
 Chưa phát hiện lỗi sản phẩm có đủ bằng chứng để mở Jira Bug riêng. 404 `/auth` và `/app` được ghi nhận là **deployment/baseline gap**, chưa kết luận regression: local yêu cầu route này nhưng chưa biết production triển khai commit nào. Không dùng đọc source local để báo runtime Pass hay suy ra bypass xác thực.
 
-Blocker còn lại: password login hợp lệ; xác minh password của QA-A cho TC-02; rapid-click/request count; session hết hạn/invalid; fault injection mạng/5xx; kiểm tra Tab; quyết định scope/rate-limit; deployment SHA và expected redirect; independent review.
+Blocker còn lại: xác nhận phương thức password login/đích redirect sau handoff và password của QA-A cho TC-02; request count khi rapid click; session hết hạn/invalid; fault injection mạng/5xx; visual mép mobile đầy đủ; quyết định scope/rate-limit; deployment SHA; independent review. Tab và double-click UI đã chạy, không còn ghi chúng là chưa thực thi.
 
 Retest: developer xác nhận deployment SHA, auth modes và đích redirect; dùng QA account đã chuẩn bị, không dùng tài khoản cá nhân khác. Chuẩn bị session expiry/fault injection ở môi trường kiểm soát, chạy lại phần Blocked và regression logout/guest gate trên đúng SHA. Không sửa auth/schema/UI trong task QA này.
 
 ## Review và điều kiện đóng
 
-- Commit/PR evidence: pending.
+- Commit evidence đầu tiên: [2f0e6b2](https://github.com/entidy06/DiDung-Air-quality-assessment-service/commit/2f0e6b2), đã push lên [nhánh QA](https://github.com/entidy06/DiDung-Air-quality-assessment-service/tree/codex/qa-login-evidence). Các cập nhật cuối theo lịch sử nhánh; PR đang chờ người dùng đăng nhập GitHub để tạo.
 - Jira comment kết quả/blocker: [10048](https://ntdat2428.atlassian.net/browse/DID-61?focusedCommentId=10048), đã đăng ngày 06/11/2026; task giữ In Progress.
-- Reviewer là thành viên khác: pending; chưa gửi/nhận sign-off. AI self-check không thay thế review của thành viên.
+- Reviewer là thành viên khác: pending; chưa nhận sign-off. AI self-check không thay thế review của thành viên.
 - Bug fix/retest links: N/A, chưa mở Bug đã xác minh.
 - Không chuyển DID-61 sang Done khi các gap bắt buộc và review còn mở.
+- `git diff --check` và checksum ảnh đã kiểm tra; không sửa code ứng dụng, không tạo test tự động, không chạy build/lint/typecheck cho thay đổi chỉ gồm tài liệu/ảnh.
 
 ## Nguồn đã đối chiếu
 

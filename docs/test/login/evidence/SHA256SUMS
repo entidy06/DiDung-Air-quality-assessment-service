@@ -6,3 +6,5 @@ e2aa59e1face45029cc51dfa15a0d574bc48c07fb7f4d642f8c0dc35ea863acf  docs/test/logi
 3e11612efe0b252c984d22e43b224262729a2474edeb82615b9a269826940803  docs/test/login/evidence/06-oauth-authenticated-header.jpg
 42ee46d1a2aeabbcae151a46eaf2b0d6c73a9b3ad8f3fed0c7fd5e2b4ebbfced  docs/test/login/evidence/07-after-logout-profile.jpg
 5608d23a9eefb7816c98e1a2d1114deab9f77ec1475f708583aa2e2fc762a0a3  docs/test/login/evidence/08-wrong-password-error-cleared-fields.jpg
+a91a2a4d840e41b91cc2f8d99435eb5287e262182072dfb1cb3e3f3c3c3f1941  docs/test/login/evidence/10-mobile-css-390.jpg
+8e3198e6baea0321cf55e94249dd8d775124495373c725c29ec7a19ebe910ae4  docs/test/login/evidence/11-desktop-css-1440.jpg
