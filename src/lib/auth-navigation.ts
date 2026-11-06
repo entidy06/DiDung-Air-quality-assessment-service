@@ -1,9 +1,23 @@
-export const AUTH_LANDING = "/#chapter-air";
+export type AppRole = "user" | "admin";
+
+export function defaultPathForRole(role: AppRole) {
+  return role === "admin" ? "/admin" as const : "/app" as const;
+}
+
+export function safeAuthRequestPath(raw: string | string[] | null | undefined) {
+  if (typeof raw !== "string" || !raw.startsWith("/") || raw.startsWith("//") || /[\\\u0000-\u0020]/.test(raw)) return null;
+  try {
+    const target = new URL(raw, "https://didung.local");
+    if (target.origin !== "https://didung.local" || target.pathname.startsWith("/auth/")) return null;
+    if (["/", "/auth", "/forbidden"].includes(target.pathname)) return null;
+    return `${target.pathname}${target.search}${target.hash}`;
+  } catch { return null; }
+}
 
 export function authFailurePath(code?: string | null) {
   const params = new URLSearchParams({ auth_error: "1" });
   if (code && /^[a-z0-9_]{1,80}$/.test(code)) params.set("auth_error_code", code);
-  return `/login?${params}`;
+  return `/auth?${params}`;
 }
 
 export function authFailureMessage(code?: string | null) {
@@ -13,13 +27,19 @@ export function authFailureMessage(code?: string | null) {
   return "Không hoàn tất được xác thực. Hãy bắt đầu đăng nhập lại.";
 }
 
-export function safeAuthDestination(raw: string | null, origin: string) {
-  if (!raw?.startsWith("/") || raw.startsWith("//") || /[\\\u0000-\u0020]/.test(raw)) return `${origin}${AUTH_LANDING}`;
+export function safeAuthDestination(raw: string | null, origin: string, role: AppRole) {
+  return new URL(authPathForRole(raw, role), origin).href;
+}
+
+export function authPathForRole(raw: string | null, role: AppRole) {
+  const fallback = defaultPathForRole(role);
+  const path = safeAuthRequestPath(raw);
+  if (!path) return fallback;
   try {
-    const target = new URL(raw, origin);
-    if (target.origin !== origin || target.pathname.startsWith("/auth/")) return `${origin}${AUTH_LANDING}`;
-    return target.href;
-  } catch { return `${origin}${AUTH_LANDING}`; }
+    const target = new URL(path, "https://didung.local");
+    if (target.pathname.startsWith("/admin") && role !== "admin") return fallback;
+    return `${target.pathname}${target.search}${target.hash}`;
+  } catch { return fallback; }
 }
 
 /** Handle providers falling back to Site URL before any browser Auth client mounts. */

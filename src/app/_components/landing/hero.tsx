@@ -27,7 +27,7 @@ export function Hero() {
     </div>
     <div className="hero-bottom">
       <span>ĐƯỢC THIẾT KẾ CHO NHỮNG NGÀY Ở TP. HỒ CHÍ MINH</span>
-      <LandingLink section="chapter-air">Xem không khí hôm nay <span aria-hidden="true">↗</span>
+      <LandingLink section="chapter-air">Xem câu chuyện minh họa <span aria-hidden="true">↗</span>
       </LandingLink>
     </div>
   </section>);

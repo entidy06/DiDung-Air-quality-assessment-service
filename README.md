@@ -2,9 +2,19 @@
 
 **DiDung** là đồ án môn **Introduction to Software Engineering (HCMUS)**, định hướng xây dựng ứng dụng web responsive giúp người dùng theo dõi chất lượng không khí (PM2.5/AQI), thời tiết và — khi dữ liệu được kiểm chứng — nguy cơ ngập do mưa, triều cường tại TP.HCM. Hệ thống hướng tới việc hỗ trợ quyết định khi ra ngoài bằng dự báo ngắn hạn, hiển thị nguồn dữ liệu và các cảnh báo theo ngưỡng cá nhân.
 
-> **Trạng thái dự án (23/10/2026):** phần **backend** (schema DB, API routes, đồng bộ dữ liệu Open-Meteo, lời khuyên AQI bằng LLM) đã được viết và **áp dụng lên một Supabase Cloud project thật** — xem minh chứng ở mục 3 và 7. **Frontend/UI chưa được xây dựng**, đang chờ wireframe được duyệt theo `AGENTS.md` §5. Các phần còn ở giai đoạn kế hoạch (tính năng chưa chốt scope, lộ trình PA) vẫn ghi theo PA0/PA1, trừ khi có ghi chú "đã triển khai" kèm minh chứng cụ thể.
+> **Trạng thái giao diện (27/10/2026):** giữ [landing cũ](docs/design/2026-10-25-navbar-rounded-preview.html), thay các panel trên landing thành minh họa; màn hình đăng nhập và dashboard sau đăng nhập theo [spec](docs/specs/2026-10-27-frontend-experience.md) và [bản vẽ HTML](docs/previews/2026-10-27-frontend-preview.html). Các phần lộ trình PA chưa chốt vẫn ghi theo PA0/PA1, trừ khi có ghi chú "đã triển khai" kèm minh chứng cụ thể.
 >
 > **Lưu ý về scope:** PA0 ban đầu coi dự báo mưa và cảnh báo ngập/triều cường là Must-have. Bản dự thảo PA1 đề xuất tập trung MVP vào PM2.5/AQI và đưa cảnh báo ngập ra khỏi MVP do chưa xác thực được nguồn dữ liệu. **Đây là thay đổi cần được nhóm và TA xác nhận**, không phải quyết định đã được phê duyệt. Xem [Quản lý phạm vi](#quản-lý-phạm-vi-và-quyết-định-chưa-chốt).
+
+### Giao diện và ranh giới dữ liệu
+
+- `/` giữ bố cục và câu chuyện landing ban đầu, cùng navbar đã được chỉnh bo góc. AQI, PM2.5, chỉ số thời tiết và biểu đồ trong các panel là **minh họa ngẫu nhiên**, đổi khoảng bốn giây một lần và có nhãn rõ ràng. Biểu đồ chuyển động để cho thấy tính minh họa. Landing không hiển thị bản đồ trạm hoặc lời nhắc; khi người dùng chọn giảm chuyển động, các số giữ nguyên và biểu đồ không chạy animation.
+- `/auth` hỗ trợ Google OAuth và email/mật khẩu. `/app` dành cho mọi tài khoản đã đăng nhập: khu vực được chọn, AQI, thời tiết, biểu đồ, bản đồ Mapbox, lời gợi ý và ngưỡng cá nhân dùng API dữ liệu thật. `/admin` chỉ dành cho tài khoản được chọn và hiện cung cấp admin shell, chưa có nghiệp vụ quản trị. Các API đọc dữ liệu môi trường trả `401` cho khách; các API đồng bộ và cron giữ cơ chế xác thực riêng.
+- Tài khoản Google OAuth và email/password đều bắt đầu với role `user`. Chỉ giá trị chính xác `app_metadata.app_role = "admin"`, do người quản lý project đặt trong Supabase Auth, mới cấp quyền admin. User mặc định vào `/app`; admin mặc định vào `/admin` và vẫn có thể dùng `/app`. Người đã đăng nhập không xem lại landing hoặc trang đăng nhập.
+- Cách tách này giúp người xem không nhầm số trong câu chuyện giới thiệu với dữ liệu hiện hành, đồng thời giữ ngưỡng và khu vực trong trải nghiệm cá nhân. Dashboard ghi nguồn, thời điểm hiệu lực và trạng thái thiếu dữ liệu. AQI Open-Meteo là **ước tính mô hình**, không phải số đo chính xác tại địa chỉ/phường; những khu vực gần nhau có thể cùng giá trị.
+- Hiện không xin quyền vị trí thiết bị vì backend chưa có ánh xạ tọa độ sang khu vực hỗ trợ. Người dùng chọn khu vực bằng danh sách, kể cả khi Mapbox không khả dụng.
+
+Để chạy đầy đủ: điền các biến trong `.env.example`, bật Google provider trong Supabase Auth, cho phép URL `https://<domain>/auth/callback` (và URL localhost tương ứng) trong Supabase Redirect URLs, cấu hình callback Supabase tại Google OAuth, và cấp token Mapbox công khai `pk.*`. Tài khoản email có thể cần xác nhận theo cấu hình Supabase Cloud. Dashboard cần dữ liệu Open-Meteo đã được đồng bộ; nếu chưa có, từng thẻ sẽ báo trạng thái trống. Việc chặn các route API của ứng dụng **không thay đổi RLS public-read hiện có**; nếu cần bảo vệ dữ liệu ngay ở Supabase, phải duyệt một spec migration/RLS riêng.
 
 ## 1. Bài toán và người dùng
 
@@ -72,7 +82,7 @@ Open-Meteo (Weather + Air Quality API)
 
 | Thành phần | Lựa chọn | Trạng thái |
 | --- | --- | --- |
-| Frontend | Next.js + shadcn/ui | Scaffold chạy được (`npm run dev`), **UI tính năng chưa xây** — chờ wireframe duyệt theo `AGENTS.md` §5 |
+| Frontend | Next.js + shadcn/ui | Landing minh họa, đăng nhập và dashboard sau đăng nhập đã triển khai theo spec ngày 27/10/2026 |
 | Backend/API | Next.js API routes | **Đã triển khai**: `sync/*`, `jobs/evaluate-alerts`, `locations`, `air-quality/{current,history,forecast}`, `weather/current`, `advisories/current`, `me/*` (profile, thresholds, notifications), `map/snapshot`, `auth/callback` |
 | Auth | Supabase Auth (`@supabase/ssr`) | **Đã triển khai**: session refresh qua `src/proxy.ts`, trigger tự tạo `profiles` khi signup, callback OAuth. Google OAuth cần cấu hình Client ID/Secret trên Dashboard (bước thủ công, chưa làm) |
 | Database | Supabase Cloud (PostgreSQL) | **Đã triển khai và đã push lên project thật** (ref `jwwbvfxgygynzwtbhbno`): 10 migration, 168 locations đã seed, verify qua REST API |
@@ -210,6 +220,33 @@ Kiểm tra trước khi push: `npx tsc --noEmit`, `npm run lint`, `npm run build
 Migration database (`supabase/migrations/`) áp dụng qua Supabase CLI (`npx supabase link`, `npx supabase db push`) — chỉ người giữ quyền truy cập Supabase project mới chạy được, xem `docs/specs/2026-10-22-backend-schema.md`.
 
 **Đăng nhập Google OAuth**: không cấu hình được bằng code — phải vào Supabase Dashboard (Authentication > Providers > Google) nhập Client ID/Secret tạo từ Google Cloud Console, và thêm `<domain>/auth/callback` vào Redirect URLs của provider đó (và của Google Cloud Console). Phần code (`src/proxy.ts`, `src/app/auth/callback/route.ts`) đã sẵn sàng, chỉ còn bước cấu hình thủ công này.
+
+### Role và quyền truy cập
+
+| Người xem | Đích mặc định | Khu vực riêng được phép mở |
+| --- | --- | --- |
+| Guest | `/` | Không có |
+| User | `/app` | `/app` |
+| Admin | `/admin` | `/admin`, `/app` |
+
+Google OAuth và email/password không tự tạo admin. Ứng dụng chỉ công nhận chuỗi chính xác `app_metadata.app_role = "admin"`; role thiếu, sai kiểu hoặc có giá trị khác đều là user. Không sửa claim hệ thống `role: authenticated`, không dùng `user_metadata`, provider, email hoặc domain để cấp admin.
+
+**Cấp admin trong Supabase Dashboard:**
+
+1. Cho người được chọn đăng nhập một lần để Supabase tạo tài khoản.
+2. Mở **Authentication > Users**, rồi đối chiếu cả user ID và email.
+3. Giữ nguyên app metadata hiện có và thêm `"app_role": "admin"`; không ghi đè metadata provider.
+4. Yêu cầu user đăng xuất rồi đăng nhập lại để nhận token mới.
+5. Xác nhận tài khoản mặc định vào `/admin` và vẫn mở được `/app`.
+
+**Thu hồi admin:**
+
+1. Xóa `app_role` hoặc đổi giá trị khỏi `admin` trong app metadata.
+2. Yêu cầu user đăng xuất rồi đăng nhập lại.
+3. Nếu cần thu hồi ngay, revoke các session đang hoạt động của user trong Supabase Auth.
+4. Xác nhận `/admin` hiển thị trang 403 và `/app` vẫn hoạt động.
+
+Không đưa email, user ID, access token hoặc secret thật vào issue, commit hay log. Xem thiết kế bảo mật và rollback tại [`docs/specs/2026-11-02-role-based-site-separation.md`](docs/specs/2026-11-02-role-based-site-separation.md).
 
 ## 8. Tài liệu và liên kết
 

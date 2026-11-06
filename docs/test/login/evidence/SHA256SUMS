@@ -1,0 +1,10 @@
+84d7ad7d6ba87bb38d5f550974c3d743ae404a15b8d947dec700c9b760c1b897  docs/test/login/evidence/01-invalid-email.jpg
+1c882f3c7aa4c003e2e916e5b9115bc07d0951630d1f932245c21810abf9da1a  docs/test/login/evidence/02-invalid-account.jpg
+e2aa59e1face45029cc51dfa15a0d574bc48c07fb7f4d642f8c0dc35ea863acf  docs/test/login/evidence/03-mobile-390.jpg
+2c10a76e762400854d663eb3cb964c023d6f9007a36eaec1e359aa0f13b92b3d  docs/test/login/evidence/04-guest-app.jpg
+42ee46d1a2aeabbcae151a46eaf2b0d6c73a9b3ad8f3fed0c7fd5e2b4ebbfced  docs/test/login/evidence/05-guest-profile.jpg
+3e11612efe0b252c984d22e43b224262729a2474edeb82615b9a269826940803  docs/test/login/evidence/06-oauth-authenticated-header.jpg
+42ee46d1a2aeabbcae151a46eaf2b0d6c73a9b3ad8f3fed0c7fd5e2b4ebbfced  docs/test/login/evidence/07-after-logout-profile.jpg
+5608d23a9eefb7816c98e1a2d1114deab9f77ec1475f708583aa2e2fc762a0a3  docs/test/login/evidence/08-wrong-password-error-cleared-fields.jpg
+a91a2a4d840e41b91cc2f8d99435eb5287e262182072dfb1cb3e3f3c3c3f1941  docs/test/login/evidence/10-mobile-css-390.jpg
+8e3198e6baea0321cf55e94249dd8d775124495373c725c29ec7a19ebe910ae4  docs/test/login/evidence/11-desktop-css-1440.jpg

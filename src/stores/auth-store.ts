@@ -9,7 +9,7 @@ type AuthState = {
   init: () => () => void;
   signUp: (email: string, password: string) => Promise<AuthResult & { signedIn: boolean }>;
   signInWithPassword: (email: string, password: string) => Promise<AuthResult>;
-  signInWithGoogle: () => Promise<AuthResult>;
+  signInWithGoogle: (nextPath?: string) => Promise<AuthResult>;
   signOut: () => Promise<AuthResult>;
 };
 export const useAuthStore = create<AuthState>((set, get) => {
@@ -45,9 +45,11 @@ export const useAuthStore = create<AuthState>((set, get) => {
         return { error: error?.message ?? null };
       } catch { return { error: "Không kết nối được dịch vụ đăng nhập." }; }
     },
-    signInWithGoogle: async () => {
+    signInWithGoogle: async (nextPath) => {
       try {
-        const { error } = await createClient().auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/auth/callback` } });
+        const callback = new URL("/auth/callback", window.location.origin);
+        if (nextPath) callback.searchParams.set("next", nextPath);
+        const { error } = await createClient().auth.signInWithOAuth({ provider: "google", options: { redirectTo: callback.href } });
         return { error: error?.message ?? null };
       } catch { return { error: "Không khởi động được đăng nhập Google." }; }
     },

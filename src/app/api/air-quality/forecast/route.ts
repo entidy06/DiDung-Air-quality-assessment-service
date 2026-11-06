@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { authenticatedClient, unauthorizedResponse } from "@/lib/api/require-user";
 
 // Phục vụ biểu đồ xu hướng (hướng C) — MVP dùng trực tiếp phần dự báo đã có sẵn
 // trong air_quality_model (Open-Meteo trả sẵn cả giờ tương lai trong cùng 1 series,
 // không cần bảng forecasts riêng — xem docs/specs/2026-10-22-backend-schema.md mục 4.4).
 export async function GET(request: Request) {
+  const supabase = await authenticatedClient();
+  if (!supabase) return unauthorizedResponse();
   const { searchParams } = new URL(request.url);
   const locationId = searchParams.get("locationId");
   if (!locationId) {
@@ -15,7 +17,6 @@ export async function GET(request: Request) {
   const now = new Date();
   const to = new Date(now.getTime() + hours * 60 * 60 * 1000).toISOString();
 
-  const supabase = await createClient();
   const { data, error } = await supabase
     .from("air_quality_model")
     .select("valid_at, pm2_5, european_aqi, us_aqi")
