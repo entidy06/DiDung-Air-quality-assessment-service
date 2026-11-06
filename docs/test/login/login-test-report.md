@@ -26,7 +26,7 @@ SRS §9 (trang in 32 / PDF page 34) liên kết FR-06 với UC-04, AC-F05-01/02/
 
 | Yêu cầu | TC liên quan | Giới hạn coverage |
 | --- | --- | --- |
-| AC-F05-01: xác thực hợp lệ và vùng preferences chỉ dành tài khoản đã xác thực | TC-01, TC-06, TC-10 OAuth | OAuth/profile đã chạy; email/password và cách ly hai tài khoản chưa đủ |
+| AC-F05-01: xác thực hợp lệ và vùng preferences chỉ dành tài khoản đã xác thực | TC-01, TC-06, TC-10 OAuth | OAuth/profile đã chạy; email/password được người dùng xác nhận tại M01; cách ly hai tài khoản chưa kiểm thử |
 | AC-F05-02: credentials bị từ chối, lỗi không chứa secret | TC-02/03/04/08 | Rejected credentials đã quan sát; unavailable/network chưa chạy |
 | AC-F05-05: request trái phép trả 401/403, không lộ/thay đổi dữ liệu riêng | TC-06/07 | Guest `/api/me` đã 401; không bao phủ cross-account hoặc mọi preferences API |
 | AC-F05-04: đăng ký và xác minh theo provider | Ngoài phạm vi login hiện tại | Không tạo thêm tài khoản hoặc coi OAuth đã chứng minh toàn bộ registration |
@@ -38,16 +38,16 @@ Precondition chung: production truy cập được; guest trừ khi dòng ghi kh
 
 | ID | Precondition / test data | Steps | Expected result | Actual result / evidence | Status |
 | --- | --- | --- | --- | --- | --- |
-| TC-LOGIN-01 | QA-A có email/password hợp lệ; guest | Mở `/login`; người dùng tự nhập credentials; submit; kiểm tra URL và trạng thái tài khoản | Login thành công, tới đích đã thống nhất, trạng thái signed-in | Sau handoff do người dùng nhận nhập email/password, quan sát URL `/#chapter-air`, header Tài khoản, nút Đăng xuất, khu vực preferences khả dụng. Không quan sát trực tiếp thao tác submit/phương thức cuối cùng; đích chuẩn của build deploy chưa được developer xác nhận, nên chưa coi toàn ca email/password là Pass | Blocked |
-| TC-LOGIN-02 | QA-A; mật khẩu cố ý sai | Nhập email QA-A và mật khẩu sai; submit một lần; so sánh với TC-03 | Không đăng nhập; lỗi chung, không tiết lộ tài khoản có tồn tại hay dữ liệu nhạy cảm | Hiện `Invalid login credentials`, form được mở lại, cùng thông báo TC-03. Xóa cả hai trường trước khi chụp [E08](evidence/08-wrong-password-error-cleared-fields.jpg). Cần xác nhận QA-A có password login để phân biệt sai mật khẩu với OAuth-only | Blocked |
+| TC-LOGIN-01 | QA-A có email/password hợp lệ; guest | Mở `/login`; người dùng tự nhập credentials; submit; kiểm tra URL và trạng thái tài khoản | Login thành công, tới `/#chapter-air`, trạng thái signed-in | Người dùng xác nhận đã kiểm thử tay bằng credentials hợp lệ và `/#chapter-air` là đích đúng. Khớp quan sát sau handoff: header Tài khoản, nút Đăng xuất, preferences khả dụng. Nguồn bổ sung: M01 | Pass |
+| TC-LOGIN-02 | QA-A có password login; mật khẩu cố ý sai | Nhập email QA-A và mật khẩu sai; submit; so sánh với TC-03 | Từ chối, lỗi chung, không lộ dữ liệu nhạy cảm | Người dùng xác nhận kiểm thử tay hiện `Invalid login credentials`; TC-01 đã xác nhận password login hợp lệ. Khớp kết quả quan sát trước và [E08](evidence/08-wrong-password-error-cleared-fields.jpg). Nguồn: M01 | Pass |
 | TC-LOGIN-03 | QA-N, mật khẩu giả; không tạo tài khoản `.invalid` | Mở `/login`; nhập QA-N và mật khẩu giả; Enter | Từ chối, thông báo chung, không stack trace/token | `Đang xử lý…`, tất cả điều khiển form disabled; sau đó `Invalid login credentials`, form enabled, URL vẫn `/login`; [E02](evidence/02-invalid-account.jpg) | Pass |
 | TC-LOGIN-04 | Chuỗi rỗng; QA-N; BAD-EMAIL | Submit hai trường rỗng; điền email hợp lệ nhưng để trống password rồi submit; nhập BAD-EMAIL rồi submit | Chặn form, chỉ ra trường cần sửa, focus đúng chỗ | Hai lần `Please fill out this field.` với focus lần lượt Email/Mật khẩu; BAD-EMAIL đưa focus Email, không rời form. [E01](evidence/01-invalid-email.jpg) chỉ minh chứng focus, không chụp được native tooltip | Pass |
-| TC-LOGIN-05 | QA-N; công cụ đếm request đã khử secret | Enter để submit; double-click Login; đối chiếu số auth requests | Enter tương đương click; pending ngăn gửi trùng, chỉ một request cho một thao tác | Enter thực sự gửi (TC-03); double-click lúc 16:51 đưa form vào pending disabled, rồi trả lỗi credentials và enabled lại. Chưa đếm request; không khẳng định chống duplicate hoàn chỉnh | Blocked |
+| TC-LOGIN-05 | QA-N; quan sát UI và đếm request thủ công | Enter để submit; double-click Login; kiểm tra xử lý request trùng | Enter tương đương click; không xử lý đăng nhập trùng ngoài ý muốn | Enter/double-click và pending disabled đã quan sát. Người dùng xác nhận đã đếm request và server xử lý việc trùng. Chấp nhận kết quả kiểm thử tay M01; chưa có số đếm cụ thể hoặc network trace đính kèm, không tự khẳng định chỉ một HTTP request | Pass |
 | TC-LOGIN-06 | Phiên QA-A qua OAuth đã thành công | Vào `/profile`; reload; Đăng xuất; Back; mở trực tiếp `/profile` | Reload giữ signed-in; logout chấm dứt UI session; Back/URL không lộ dữ liệu riêng | Có tài khoản/nút Đăng xuất sau reload; logout xong hiện lời mời login. Back về `/#chapter-air` có lời mời login; URL `/profile` cũng chặn dữ liệu riêng. [E06](evidence/06-oauth-authenticated-header.jpg), [E07](evidence/07-after-logout-profile.jpg). Không kiểm tra token replay/server revocation | Pass |
 | TC-LOGIN-07 | Guest; thêm session hết hạn/invalid được developer chuẩn bị | Mở `/profile`; GET `/api/me` không cookie; lặp với session hết hạn/invalid | Không lộ dữ liệu riêng; API từ chối, UI hướng dẫn login | Guest `/profile` chỉ có lời mời login [E05](evidence/05-guest-profile.jpg); API HTTP 401, `{"error":"Unauthorized"}`. Chưa có session hết hạn/invalid được chuẩn bị | Blocked |
-| TC-LOGIN-08 | QA-N; điều kiện offline/5xx có kiểm soát | Submit, quan sát pending; ngắt mạng/fault injection; khôi phục và retry | Loading rõ, không treo vô hạn; lỗi an toàn, retry được | Pending và hồi phục sau lỗi credentials đã thấy; chưa mô phỏng lỗi mạng/server. Timeout công cụ và DNS sandbox không được coi là lỗi của sản phẩm | Blocked |
-| TC-LOGIN-09 | Desktop CSS 1440×900, mobile CSS 390×844; bàn phím | Kiểm tra form, label, focus; dùng Tab/Enter; kiểm tra validation và error alert | Nội dung không chồng lấp; label/focus nhận biết; tương tác được bằng bàn phím | Accessible name Email/Mật khẩu, `alert`, focus ring, Enter hoạt động. Tab: Email → Mật khẩu → Login → Google. DOM `scrollWidth == innerWidth` ở 390 và 1440; không có input/button/link vượt mép theo bounding rect tại 390. [E10](evidence/10-mobile-css-390.jpg)/[E11](evidence/11-desktop-css-1440.jpg) bổ sung đúng CSS width; ảnh mobile bị cắt phần mép phải của bề mặt capture, chưa xác nhận visual toàn mép trên thiết bị thật. Không coi ảnh capture này là Bug ứng dụng hoặc audit WCAG hoàn chỉnh | Blocked |
-| TC-LOGIN-10 | QA-A Google OAuth đã được người dùng cho phép | Google → chọn đúng QA-A → consent cơ bản → callback; kiểm tra tùy chọn forgot/remember và rate limit theo scope | OAuth trả về app và có session; tính năng không có được ghi N/A | OAuth về `/#chapter-air`, `/profile` signed-in (E06). Không thấy forgot password/remember me trên form: N/A cho UI build này. Rate limit chưa kiểm tra, cần scope/ngưỡng được thống nhất, không brute force production | Blocked |
+| TC-LOGIN-08 | QA-N; điều kiện offline/5xx có kiểm soát | Submit login khi mất mạng; khôi phục và retry; kiểm tra server 5xx | Loading rõ, lỗi an toàn, retry được, không treo | Người dùng kiểm thử tay: mất mạng không làm phiên đang đăng nhập bị đăng xuất; người dùng giải thích là do cache (chưa xác minh cơ chế). Đây là kiểm tra giữ phiên khi offline, chưa chứng minh submit login lúc offline/timeout/5xx và retry. Pending/hồi phục sau lỗi credentials đã quan sát. Nguồn: M01 | Blocked |
+| TC-LOGIN-09 | Desktop/mobile; bàn phím | Kiểm tra layout, label, focus, Tab/Enter và validation | Không lỗi bố cục; label/focus rõ; dùng được bàn phím | Người dùng xác nhận kiểm thử tay không lỗi giao diện (M01), giải quyết khoảng trống visual do ảnh capture bị cắt mép. Đã quan sát label/alert/focus, Tab Email → Mật khẩu → Login → Google, Enter; DOM không overflow tại CSS 390/1440px. [E10](evidence/10-mobile-css-390.jpg)/[E11](evidence/11-desktop-css-1440.jpg). Không suy thành audit WCAG đầy đủ | Pass |
+| TC-LOGIN-10 | QA-A; tùy chọn hiện có trên build | Google OAuth; kiểm tra forgot password/remember me; xác minh rate-limit khi nhập sai liên tiếp nếu thuộc scope | OAuth thành công; tính năng chưa triển khai ghi N/A; rate-limit theo ngưỡng được xác nhận | OAuth đã thành công (E06). Người dùng xác nhận chưa có Forgot password/remember me: N/A / Not Implemented; có OAuth; chưa biết rate-limit khi nhập nhiều lần (M01). Phần rate-limit còn chưa xác minh, nên TC tổng giữ Blocked | Blocked |
 
 ## Evidence và ghi chép đã khử dữ liệu
 
@@ -89,13 +89,27 @@ Các giờ trong bảng là thời điểm lưu ảnh, không phải thời gian
 
 ## Tổng kết, bug và blocker
 
-Tạm thời: **10 TC chính: 3 Pass, 0 Fail, 7 Blocked, 0 N/A**. N/A chỉ ở subcase forgot password/remember me của TC-10; OAuth subcase đã thành công. Không đổi cả TC thành Pass khi chưa đủ bước.
+Cập nhật theo kiểm thử tay M01: **10 TC chính: 7 Pass, 0 Fail, 3 Blocked, 0 N/A**. Pass gồm TC-01/02/03/04/05/06/09; Blocked gồm TC-07/08/10. N/A chỉ ở subcase forgot password/remember me của TC-10; OAuth subcase đã thành công. Không đổi cả TC thành Pass khi chưa đủ bước.
 
 Chưa phát hiện lỗi sản phẩm có đủ bằng chứng để mở Jira Bug riêng. 404 `/auth` và `/app` được ghi nhận là **deployment/baseline gap**, chưa kết luận regression: local yêu cầu route này nhưng chưa biết production triển khai commit nào. Không dùng đọc source local để báo runtime Pass hay suy ra bypass xác thực.
 
-Blocker còn lại: xác nhận phương thức password login/đích redirect sau handoff và password của QA-A cho TC-02; request count khi rapid click; session hết hạn/invalid; fault injection mạng/5xx; visual mép mobile đầy đủ; quyết định scope/rate-limit; deployment SHA; independent review. Tab và double-click UI đã chạy, không còn ghi chúng là chưa thực thi.
+Blocker còn lại: TC-07 session hết hạn/invalid; TC-08 submit login lúc offline/timeout/5xx và retry; TC-10 rate-limit khi nhập sai nhiều lần (hoặc quyết định ngoài scope). Ngoài kết quả TC: deployment SHA và independent review vẫn chưa đủ. Các xác nhận về credentials hợp lệ, redirect, xử lý request trùng và giao diện đã được người dùng bổ sung, không còn ghi là blocker.
 
-Retest: developer xác nhận deployment SHA, auth modes và đích redirect; dùng QA account đã chuẩn bị, không dùng tài khoản cá nhân khác. Chuẩn bị session expiry/fault injection ở môi trường kiểm soát, chạy lại phần Blocked và regression logout/guest gate trên đúng SHA. Không sửa auth/schema/UI trong task QA này.
+Retest: chuẩn bị session hết hạn/invalid và lỗi mạng/server ở môi trường kiểm soát; xác nhận ngưỡng/scope rate-limit rồi kiểm tra phù hợp. Bổ sung deployment SHA và review. Không sửa auth/schema/UI trong task QA này.
+
+## M01 — kết quả kiểm thử tay do người dùng xác nhận
+
+Nguồn: tin nhắn trực tiếp của người dùng trong chat này, nhận ngày 06/11/2026 (UTC+7), sau lượt QA ban đầu. Đây là kết quả do người dùng thực thi/xác nhận, không phải lượt AI chạy lại và không phải independent peer review.
+
+- TC-01: đăng nhập hợp lệ; `/#chapter-air` là đường dẫn đúng.
+- TC-02: hiện `Invalid login credentials`.
+- TC-05: người dùng đã đếm và xác nhận server xử lý việc trùng; chưa cung cấp số đếm/network trace.
+- TC-07: chưa biết kết quả session hết hạn/invalid.
+- TC-08: mất mạng không làm phiên đăng nhập bị đăng xuất; “vì có cache” là giải thích của người dùng, chưa xác minh kỹ thuật. Chưa có kết quả gửi login khi offline/5xx.
+- TC-09: không lỗi giao diện; chưa cung cấp browser/device cụ thể hoặc ảnh bổ sung.
+- TC-10: chưa có Forgot password/remember me; có OAuth; chưa xác minh rate-limit khi nhập nhiều lần.
+
+Ảnh/checksum ban đầu được giữ nguyên. Reviewer cần phân biệt evidence quan sát trực tiếp với các xác nhận thủ công M01; không tự dựng ảnh/log cho M01.
 
 ## Review và điều kiện đóng
 
