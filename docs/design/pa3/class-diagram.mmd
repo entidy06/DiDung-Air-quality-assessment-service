@@ -1,0 +1,224 @@
+classDiagram
+direction LR
+%% Design abstractions of existing functions, hooks, stores and DTOs, not new OO classes.
+%% Module labels and operation crosswalk are documented in pa3-assigned-sections.md section 4.2.
+namespace Model {
+  class ApiClient {
+    <<module>>
+    +apiRequest(path, options) Promise~T~
+    +errorMessage(error) string
+  }
+  class ApiError {
+    <<class>>
+    +number status
+    +constructor(status, message)
+  }
+  class Presentation {
+    <<module>>
+    +airPresentation(value)
+    +numberText(value, digits) string
+    +timeText(value) string
+    +isOld(value) boolean
+    +chartPresentation(items, period)
+  }
+  class CurrentAirQualityRoute {
+    <<routeModule>>
+    +GET(request) Promise~Response~
+  }
+  class ThresholdCollectionRoute {
+    <<routeModule>>
+    +GET() Promise~Response~
+    +POST(request) Promise~Response~
+  }
+  class ThresholdItemRoute {
+    <<routeModule>>
+    +PATCH(request, params) Promise~Response~
+    +DELETE(request, params) Promise~Response~
+  }
+  class AirSyncRoute {
+    <<routeModule>>
+    +POST(request) Promise~Response~
+  }
+  class WeatherSyncRoute {
+    <<routeModule>>
+    +POST(request) Promise~Response~
+  }
+  class EvaluateAlertsRoute {
+    <<routeModule>>
+    +POST(request) Promise~Response~
+  }
+  class OpenMeteo {
+    <<module>>
+    +fetchAirQualityForLocations(locations, forecastDays) Promise~AirQualityResult[]~
+    +fetchWeatherForLocations(locations, forecastDays) Promise~WeatherResult[]~
+    +toUtcIso(openMeteoTime) string
+  }
+  class SupabaseClients {
+    <<moduleGroup>>
+    +createClient() SupabaseClient
+    +createAdminClient() SupabaseClient
+  }
+  class RequireUser {
+    <<module>>
+    +authenticatedClient()
+    +unauthorizedResponse()
+  }
+  class Authorization {
+    <<module>>
+    +getViewer() Promise~Viewer~
+  }
+  class Location {
+    <<DTO>>
+    +string id
+    +string name
+    +string slug
+    +latitude
+    +longitude
+  }
+  class Reading {
+    <<DTO>>
+    +string valid_at
+    +Numeric pm2_5
+    +Numeric us_aqi
+  }
+  class AirReading {
+    <<DTO>>
+    +string source
+    +string fetched_at
+    +string data_type
+  }
+  class Series {
+    <<DTO>>
+    +string data_type
+    +Reading[] items
+  }
+  class Threshold {
+    <<DTO>>
+    +string id
+    +string location_id
+    +Metric metric
+    +Numeric threshold_value
+    +boolean is_active
+  }
+}
+namespace ViewModel {
+  class LocationStore {
+    <<ZustandStore>>
+    +Location[] locations
+    +string selectedId
+    +status
+    +load() Promise~void~
+    +select(id) void
+  }
+  class AuthStore {
+    <<ZustandStore>>
+    +User user
+    +boolean loading
+    +number generation
+    +init() cleanup
+    +signUp(email, password)
+    +signInWithPassword(email, password)
+    +signInWithGoogle(nextPath)
+    +signOut()
+  }
+  class ApiResource {
+    <<hook>>
+    +useApiResource(url, scope, revision)
+    +data
+    +status
+    +error
+    +reload() void
+  }
+  class EnvironmentHooks {
+    <<module>>
+    +useSelectedLocation()
+    +useAirQuality()
+    +useWeather()
+    +useAirTrend()
+    +useMapSnapshot()
+  }
+  class AccountHooks {
+    <<module>>
+    +useAccountIdentity()
+    +useAccountMutation(scope)
+    +useThresholds(scope)
+    +useNotifications(scope)
+    +useProfile(scope)
+  }
+  class AuthForm {
+    <<hook>>
+    +useAuthForm(nextPath)
+    +submit()
+    +google()
+    +changeMode(next)
+  }
+  class MapCanvas {
+    <<hook>>
+    +useMapCanvas(items, selectedId, select)
+  }
+}
+namespace View {
+  class DashboardExperience {
+    <<component>>
+    +DashboardExperience()
+  }
+  class LoginForm {
+    <<component>>
+    +LoginForm(callbackError, nextPath)
+  }
+  class AppProvider {
+    <<component>>
+    +AppProvider(children)
+  }
+  class GuardedPages {
+    <<routeModuleGroup>>
+    +AppPage()
+    +AuthPage(searchParams)
+    +AdminPage()
+    +ForbiddenPage()
+  }
+}
+DashboardExperience ..> EnvironmentHooks : reads prepared state
+DashboardExperience ..> AccountHooks : thresholds and sign-out
+DashboardExperience ..> LocationStore : subscribes and selects
+DashboardExperience ..> MapCanvas : renders map
+LoginForm ..> AuthForm : binds events and feedback
+AppProvider ..> AuthStore : init and cleanup
+AppProvider ..> LocationStore : load after sign-in
+GuardedPages ..> Authorization : server role guard
+GuardedPages ..> DashboardExperience : app page renders
+GuardedPages ..> LoginForm : auth page renders
+AuthForm ..> AuthStore : auth actions
+EnvironmentHooks ..> LocationStore : selected location
+EnvironmentHooks ..> ApiResource : resource lifecycle
+EnvironmentHooks ..> Presentation : display projection
+AccountHooks ..> AuthStore : identity and generation
+AccountHooks ..> LocationStore : threshold location
+AccountHooks ..> ApiResource : account-scoped reads
+AccountHooks ..> ApiClient : mutations
+ApiResource ..> ApiClient : same-origin HTTP
+ApiClient ..> ApiError : throws on failure
+ApiClient ..> CurrentAirQualityRoute : GET current AQI
+ApiClient ..> ThresholdCollectionRoute : GET or POST
+ApiClient ..> ThresholdItemRoute : PATCH or DELETE
+CurrentAirQualityRoute ..> RequireUser : authenticate
+RequireUser ..> SupabaseClients : server client
+Authorization ..> SupabaseClients : server client
+AuthStore ..> SupabaseClients : browser client
+ThresholdCollectionRoute ..> SupabaseClients : server client
+ThresholdItemRoute ..> SupabaseClients : server client
+AirSyncRoute ..> OpenMeteo : fetchAirQualityForLocations
+WeatherSyncRoute ..> OpenMeteo : fetchWeatherForLocations
+AirSyncRoute ..> SupabaseClients : admin client and persistence
+WeatherSyncRoute ..> SupabaseClients : admin client and persistence
+EvaluateAlertsRoute ..> SupabaseClients : admin client and persistence
+CurrentAirQualityRoute ..> AirReading : returns projection
+ThresholdCollectionRoute ..> Threshold : returns projection
+ThresholdItemRoute ..> Threshold : PATCH returns projection
+Reading <|-- AirReading : TypeScript intersection extension
+Series "1" o-- "0..*" Reading : items
+LocationStore "1" o-- "0..*" Location : loaded catalog
+LocationStore --> "0..1" Location : selected entry
+Location "1" -- "0..*" Threshold : location_id persisted FK
+note for SupabaseClients "Browser createClient is synchronous; server createClient is async. SDK may reuse browser client. No application singleton is implied."
+note for AccountHooks "useThresholds exposes save, edit, cancel, toggle, remove. useNotifications exists but has no reachable notification center."

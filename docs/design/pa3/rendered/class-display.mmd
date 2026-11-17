@@ -1,0 +1,55 @@
+classDiagram
+direction TB
+%% Detail panel: exact subset of ../class-diagram.mmd, not additional implementation.
+  class DashboardExperience {
+    <<component>>
+    +DashboardExperience()
+  }
+  class EnvironmentHooks {
+    <<module>>
+    +useSelectedLocation()
+    +useAirQuality()
+    +useWeather()
+    +useAirTrend()
+    +useMapSnapshot()
+  }
+  class LocationStore {
+    <<ZustandStore>>
+    +Location[] locations
+    +string selectedId
+    +status
+    +load() Promise~void~
+    +select(id) void
+  }
+  class ApiResource {
+    <<hook>>
+    +useApiResource(url, scope, revision)
+    +data
+    +status
+    +error
+    +reload() void
+  }
+  class ApiClient {
+    <<module>>
+    +apiRequest(path, options) Promise~T~
+    +errorMessage(error) string
+  }
+  class Presentation {
+    <<module>>
+    +airPresentation(value)
+    +numberText(value, digits) string
+    +timeText(value) string
+    +isOld(value) boolean
+    +chartPresentation(items, period)
+  }
+  class MapCanvas {
+    <<hook>>
+    +useMapCanvas(items, selectedId, select)
+  }
+DashboardExperience ..> EnvironmentHooks : reads prepared state
+DashboardExperience ..> LocationStore : subscribes and selects
+DashboardExperience ..> MapCanvas : renders map
+EnvironmentHooks ..> LocationStore : selected location
+EnvironmentHooks ..> ApiResource : resource lifecycle
+EnvironmentHooks ..> Presentation : display projection
+ApiResource ..> ApiClient : same-origin HTTP

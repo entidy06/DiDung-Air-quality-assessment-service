@@ -1,0 +1,57 @@
+classDiagram
+direction TB
+%% Detail panel: exact subset of ../class-diagram.mmd, not additional implementation.
+  class LoginForm {
+    <<component>>
+    +LoginForm(callbackError, nextPath)
+  }
+  class AuthForm {
+    <<hook>>
+    +useAuthForm(nextPath)
+    +submit()
+    +google()
+    +changeMode(next)
+  }
+  class AuthStore {
+    <<ZustandStore>>
+    +User user
+    +boolean loading
+    +number generation
+    +init() cleanup
+    +signUp(email, password)
+    +signInWithPassword(email, password)
+    +signInWithGoogle(nextPath)
+    +signOut()
+  }
+  class AppProvider {
+    <<component>>
+    +AppProvider(children)
+  }
+  class AccountHooks {
+    <<module>>
+    +useAccountIdentity()
+    +useAccountMutation(scope)
+    +useThresholds(scope)
+    +useNotifications(scope)
+    +useProfile(scope)
+  }
+  class ApiClient {
+    <<module>>
+    +apiRequest(path, options) Promise~T~
+    +errorMessage(error) string
+  }
+  class LocationStore {
+    <<ZustandStore>>
+    +Location[] locations
+    +string selectedId
+    +status
+    +load() Promise~void~
+    +select(id) void
+  }
+LoginForm ..> AuthForm : binds events and feedback
+AppProvider ..> AuthStore : init and cleanup
+AppProvider ..> LocationStore : load after sign-in
+AuthForm ..> AuthStore : auth actions
+AccountHooks ..> AuthStore : identity and generation
+AccountHooks ..> LocationStore : threshold location
+AccountHooks ..> ApiClient : mutations

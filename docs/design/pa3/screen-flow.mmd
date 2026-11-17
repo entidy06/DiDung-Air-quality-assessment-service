@@ -1,0 +1,54 @@
+flowchart TD
+  Entry["Open a route"] --> Gate{"Requested route and session"}
+  Gate -->|"anonymous /"| Landing["SCR-01 Landing - UC-15<br/>illustrative local data"]
+  Landing -->|"sign in / threshold prompt"| Auth["SCR-05 /auth - UC-04<br/>login or registration"]
+  Landing -->|"story / features / sources"| Chapters["Sections of same landing page"]
+  Chapters --> Landing
+  Gate -->|"anonymous /app or /admin"| Auth
+  Gate -->|"anonymous /forbidden"| Auth
+  Gate -->|"signed in / or /auth"| Role{"Role default"}
+  Auth -->|"password success / session from signup"| Complete["/auth?complete=1<br/>validate next path and role"]
+  Auth -->|"Google / email confirmation callback"| Callback["/auth/callback<br/>exchange code for session"]
+  Callback -->|"success"| Destination{"Safe authorized next<br/>or role default"}
+  Callback -->|"error"| AuthError["Auth error with retry guidance"]
+  AuthError --> Auth
+  Auth -->|"signup without session"| Confirm["Check confirmation email<br/>no dashboard success claimed"]
+  Confirm --> Auth
+  Complete --> Destination
+  Destination -->|"app path / user default"| App["/app authenticated dashboard"]
+  Destination -->|"admin path / admin default"| Admin["/admin placeholder shell"]
+  Destination -->|"other permitted internal path"| Entry
+  Role -->|"user"| App
+  Role -->|"admin"| Admin
+  Gate -->|"signed in /app - either role"| App
+  Gate -->|"signed in /admin"| AdminGate{"app_role exactly admin?"}
+  AdminGate -->|"yes"| Admin
+  AdminGate -->|"no"| Forbidden["/forbidden<br/>return to app or sign out"]
+  Gate -->|"signed in /forbidden"| AdminGate
+  Forbidden --> App
+  Admin -->|"View user site"| App
+  App --> Air["SCR-02 current AQI + weather + advice<br/>UC-01 / UC-09 / UC-10"]
+  App --> Trend["SCR-03 forecast / history toggle<br/>partial UC-02 / UC-03 / UC-09 / UC-10"]
+  App --> Map["SCR-04 #app-map<br/>UC-03 / UC-09 / UC-10"]
+  App --> Thresholds["SCR-06 #app-thresholds<br/>UC-06; area selection is not UC-05"]
+  App --> Location["Shared active-location selector"]
+  Location -->|"selection changes resources"| Air
+  Location --> Trend
+  Location --> Thresholds
+  Map -->|"popup chooses area"| Location
+  App -->|"session check / no user"| Auth
+  App -->|"successful sign-out"| Landing
+  Admin -->|"successful sign-out"| Landing
+  Forbidden -->|"successful sign-out"| Landing
+  App -.-> States["Per-resource states:<br/>idle/loading, ready, empty, unauthorized, error<br/>stale labels where implemented"]
+  Map -.-> MapState["No token or map error:<br/>text guidance + shared selector"]
+  Thresholds -.-> Mutation["Validation / pending / success / failure<br/>no automatic evaluation on save"]
+  Aliases["/login -> /auth<br/>/forecast, /air-quality, /weather, /profile -> /app<br/>/map -> /app#app-map<br/>/notifications -> /app#app-thresholds<br/>/demo -> /<br/>/story, /features, /data-sources -> /#how-it-works"] --> Entry
+  Gaps["Requirement gaps, no reachable screen:<br/>UC-05 saved-location CRUD<br/>SCR-07 UC-07 notification center"]
+  Jobs["No screen: UC-08 ingestion<br/>UC-11 threshold evaluation / notification creation"]
+  classDef gap fill:#f1e5a1,color:#6e3511,stroke:#6e3511
+  class Gaps gap
+%% Solid arrows are navigation, contained regions, or actual control actions.
+%% Dotted arrows document state annotations, not separate navigable screens.
+%% AdminGate sends admin /forbidden visits to /admin; ordinary users see /forbidden.
+%% See the complete inventory in pa3-assigned-sections.md section 6.1.
