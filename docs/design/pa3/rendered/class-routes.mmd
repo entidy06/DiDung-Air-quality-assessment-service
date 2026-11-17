@@ -1,0 +1,44 @@
+classDiagram
+direction TB
+%% Detail panel: exact subset of ../class-diagram.mmd, not additional implementation.
+  class ApiClient {
+    <<module>>
+    +apiRequest(path, options) Promise~T~
+    +errorMessage(error) string
+  }
+  class CurrentAirQualityRoute {
+    <<routeModule>>
+    +GET(request) Promise~Response~
+  }
+  class ThresholdCollectionRoute {
+    <<routeModule>>
+    +GET() Promise~Response~
+    +POST(request) Promise~Response~
+  }
+  class ThresholdItemRoute {
+    <<routeModule>>
+    +PATCH(request, params) Promise~Response~
+    +DELETE(request, params) Promise~Response~
+  }
+  class RequireUser {
+    <<module>>
+    +authenticatedClient()
+    +unauthorizedResponse()
+  }
+  class Authorization {
+    <<module>>
+    +getViewer() Promise~Viewer~
+  }
+  class SupabaseClients {
+    <<moduleGroup>>
+    +createClient() SupabaseClient
+    +createAdminClient() SupabaseClient
+  }
+ApiClient ..> CurrentAirQualityRoute : GET current AQI
+ApiClient ..> ThresholdCollectionRoute : GET or POST
+ApiClient ..> ThresholdItemRoute : PATCH or DELETE
+CurrentAirQualityRoute ..> RequireUser : authenticate
+RequireUser ..> SupabaseClients : server client
+Authorization ..> SupabaseClients : server client
+ThresholdCollectionRoute ..> SupabaseClients : server client
+ThresholdItemRoute ..> SupabaseClients : server client

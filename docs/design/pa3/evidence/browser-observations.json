@@ -1,0 +1,298 @@
+{
+  "files": [
+    [
+      "/home/ntdat/.t3/userdata/browser-artifacts/browser-screenshot-didung-air-quality-vercel-app-mwimr8rm-06104d1b.png",
+      "landing1440.png"
+    ],
+    [
+      "/home/ntdat/.t3/userdata/browser-artifacts/browser-screenshot-didung-air-quality-vercel-app-mwimrlx1-9c8acd79.png",
+      "landing390.png"
+    ],
+    [
+      "/home/ntdat/.t3/userdata/browser-artifacts/browser-screenshot-didung-air-quality-vercel-app-mwims1al-46a73acf.png",
+      "login390.png"
+    ],
+    [
+      "/home/ntdat/.t3/userdata/browser-artifacts/browser-screenshot-didung-air-quality-vercel-app-mwimslv4-42f4bd14.png",
+      "login1440.png"
+    ],
+    [
+      "/home/ntdat/.t3/userdata/browser-artifacts/browser-screenshot-didung-air-quality-vercel-app-mwimsukt-e89438fa.png",
+      "signup1440.png"
+    ],
+    [
+      "/home/ntdat/.t3/userdata/browser-artifacts/browser-screenshot-didung-air-quality-vercel-app-mwimtia6-579158ad.png",
+      "chapter-air1440.png"
+    ],
+    [
+      "/home/ntdat/.t3/userdata/browser-artifacts/browser-screenshot-didung-air-quality-vercel-app-mwimtijq-79b4df64.png",
+      "chapter-trend1440.png"
+    ],
+    [
+      "/home/ntdat/.t3/userdata/browser-artifacts/browser-screenshot-didung-air-quality-vercel-app-mwimtitr-00af942b.png",
+      "chapter-alert1440.png"
+    ],
+    [
+      "/home/ntdat/.t3/userdata/browser-artifacts/browser-screenshot-didung-air-quality-vercel-app-mwimuhs4-28c71ea3.png",
+      "map1440.png"
+    ]
+  ],
+  "loginDOM": {
+    "buttons": [
+      "Đăng nhập",
+      "Đăng ký",
+      "Đăng nhập ↗",
+      "Tiếp tục với Google"
+    ],
+    "inputs": [
+      {
+        "autocomplete": "email",
+        "id": "auth-email",
+        "label": "Email",
+        "minLength": -1,
+        "required": true,
+        "type": "email"
+      },
+      {
+        "autocomplete": "current-password",
+        "id": "auth-password",
+        "label": "Mật khẩu",
+        "minLength": -1,
+        "required": true,
+        "type": "password"
+      }
+    ],
+    "scrollWidth": 375,
+    "text": "Đến nội dung chính\n✳\nDiDung\n.\nNgưỡng & thông báo\nĐăng nhập\n↗\nĐăng nhập\nMỘT NGƯỜI BẠN NHỎ TRƯỚC MỖI CHUYẾN ĐI\nĐăng nhập cùng DiDung\nĐăng nhập\nĐăng ký\nEmail\nMật khẩu\nĐăng nhập ↗\nTiếp tục với Google\n✳\nDiDung.\n\nMột người bạn nhỏ trước khi ra ngoài.\nĐồ án Introduction to Software Engineering · HCMUS\n\nNguồn & giới hạn ↗",
+    "url": "https://didung-air-quality.vercel.app/login",
+    "width": 390
+  },
+  "signupDOM": {
+    "inputs": [
+      {
+        "id": "auth-email",
+        "label": "Email",
+        "minLength": -1,
+        "required": true,
+        "type": "email"
+      },
+      {
+        "id": "auth-password",
+        "label": "Mật khẩu",
+        "minLength": 6,
+        "required": true,
+        "type": "password"
+      }
+    ],
+    "text": "Đến nội dung chính\n✳\nDiDung\n.\nCâu chuyện\nDiDung có gì?\nNguồn dữ liệu\nNgưỡng & thông báo\nĐăng nhập\n↗\nĐăng nhập\nMỘT NGƯỜI BẠN NHỎ TRƯỚC MỖI CHUYẾN ĐI\nTạo tài khoản DiDung\nĐăng nhập\nĐăng ký\nEmail\nMật khẩu\nTạo tài khoản ↗\nTiếp tục với Google\n✳\nDiDung.\n\nMột người bạn nhỏ trước khi ra ngoài.\nĐồ án Introduction to Software Engineering · HCMUS\n\nNguồn & giới hạn ↗"
+  },
+  "keyboard": [
+    {
+      "boxShadow": "none",
+      "id": "",
+      "outline": "rgb(72, 108, 47) solid 3px",
+      "outlineOffset": "6px",
+      "rect": {
+        "height": 54,
+        "width": 179.703125,
+        "x": 20,
+        "y": 20
+      },
+      "tag": "A",
+      "text": "Đến nội dung chính"
+    },
+    {
+      "boxShadow": "none",
+      "id": "",
+      "outline": "rgb(72, 108, 47) solid 3px",
+      "outlineOffset": "6px",
+      "rect": {
+        "height": 42,
+        "width": 143.453125,
+        "x": 104,
+        "y": 34
+      },
+      "tag": "A",
+      "text": "✳\nDiDung\n."
+    },
+    {
+      "boxShadow": "none",
+      "id": "",
+      "outline": "rgb(72, 108, 47) solid 3px",
+      "outlineOffset": "6px",
+      "rect": {
+        "height": 44,
+        "width": 75.21875,
+        "x": 479.34375,
+        "y": 33
+      },
+      "tag": "A",
+      "text": "Câu chuyện"
+    },
+    {
+      "boxShadow": "none",
+      "id": "",
+      "outline": "rgb(72, 108, 47) solid 3px",
+      "outlineOffset": "6px",
+      "rect": {
+        "height": 44,
+        "width": 87.9375,
+        "x": 584.5625,
+        "y": 33
+      },
+      "tag": "A",
+      "text": "DiDung có gì?"
+    },
+    {
+      "boxShadow": "none",
+      "id": "",
+      "outline": "rgb(72, 108, 47) solid 3px",
+      "outlineOffset": "6px",
+      "rect": {
+        "height": 44,
+        "width": 92.609375,
+        "x": 702.5,
+        "y": 33
+      },
+      "tag": "A",
+      "text": "Nguồn dữ liệu"
+    },
+    {
+      "boxShadow": "rgb(217, 199, 174) 5px 5px 11px 0px, rgb(255, 249, 240) -5px -5px 11px 0px",
+      "id": "",
+      "outline": "rgb(72, 108, 47) solid 3px",
+      "outlineOffset": "6px",
+      "rect": {
+        "height": 48,
+        "width": 164.515625,
+        "x": 1026.984375,
+        "y": 31
+      },
+      "tag": "A",
+      "text": "Ngưỡng & thông báo"
+    },
+    {
+      "boxShadow": "rgb(217, 199, 174) 6px 7px 15px 0px, rgba(145, 172, 103, 0.5) 2px 2px 3px 0px inset, rgba(72, 108, 47, 0.5) -2px -3px 4px 0px inset",
+      "id": "",
+      "outline": "rgb(72, 108, 47) solid 3px",
+      "outlineOffset": "6px",
+      "rect": {
+        "height": 48,
+        "width": 129.5,
+        "x": 1206.5,
+        "y": 31
+      },
+      "tag": "A",
+      "text": "Đăng nhập\n↗"
+    },
+    {
+      "boxShadow": "rgb(217, 199, 174) 5px 5px 12px 0px inset, rgb(255, 249, 240) -5px -5px 12px 0px inset",
+      "id": "",
+      "outline": "rgb(72, 108, 47) solid 3px",
+      "outlineOffset": "6px",
+      "rect": {
+        "height": 44,
+        "width": 93.453125,
+        "x": 525,
+        "y": 298.59375
+      },
+      "tag": "BUTTON",
+      "text": "Đăng nhập"
+    }
+  ],
+  "colors": {
+    "bodyBackground": "rgb(252, 236, 216)",
+    "colors": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(110, 53, 17)",
+        "fontSize": "13px",
+        "text": "Khu vực tại TP. Hồ Chí Minh\nAn Đông\nAn Hội Đông\nAn Hội Tây\nAn Khá"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(110, 53, 17)",
+        "fontSize": "73.44px",
+        "text": "Ngoài kia có\nmột ngày dễ chịu."
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(110, 53, 17)",
+        "fontSize": "48px",
+        "text": "Nắng đẹp rồi.\nKhông khí thì sao?"
+      },
+      {
+        "background": "rgb(252, 236, 216)",
+        "color": "rgb(110, 53, 17)",
+        "fontSize": "13px",
+        "text": "Làm mới ↻"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(110, 53, 17)",
+        "fontSize": "48px",
+        "text": "Mang theo chiếc ô,\nhay một chiếc mũ?"
+      },
+      {
+        "background": "rgb(252, 236, 216)",
+        "color": "rgb(110, 53, 17)",
+        "fontSize": "13px",
+        "text": "Làm mới thời tiết"
+      },
+      {
+        "background": "rgb(252, 236, 216)",
+        "color": "rgb(110, 53, 17)",
+        "fontSize": "13px",
+        "text": "Làm mới lời khuyên"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(110, 53, 17)",
+        "fontSize": "48px",
+        "text": "Đi bây giờ,\nhay chậm lại một chút?"
+      },
+      {
+        "background": "rgb(252, 236, 216)",
+        "color": "rgb(110, 53, 17)",
+        "fontSize": "11px",
+        "text": "24 giờ qua"
+      },
+      {
+        "background": "rgb(252, 236, 216)",
+        "color": "rgb(72, 108, 47)",
+        "fontSize": "11px",
+        "text": "24 giờ tới"
+      },
+      {
+        "background": "rgb(252, 236, 216)",
+        "color": "rgb(110, 53, 17)",
+        "fontSize": "13px",
+        "text": "Làm mới"
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(110, 53, 17)",
+        "fontSize": "48px",
+        "text": "Mỗi người một nhịp.\nMỗi người một ngưỡng."
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(110, 53, 17)",
+        "fontSize": "40px",
+        "text": "Đủ điều cần biết.\nNhẹ một ngày của bạn."
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(110, 53, 17)",
+        "fontSize": "48px",
+        "text": "Một con số tốt\ncần một nguồn rõ ràng."
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(110, 53, 17)",
+        "fontSize": "68px",
+        "text": "Nơi bạn sắp đến,\nhôm nay thế nào?"
+      }
+    ]
+  }
+}

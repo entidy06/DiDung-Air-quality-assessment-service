@@ -1,0 +1,39 @@
+classDiagram
+direction TB
+%% Detail panel: exact subset of ../class-diagram.mmd, not additional implementation.
+  class Reading {
+    <<DTO>>
+    +string valid_at
+    +Numeric pm2_5
+    +Numeric us_aqi
+  }
+  class AirReading {
+    <<DTO>>
+    +string source
+    +string fetched_at
+    +string data_type
+  }
+  class Series {
+    <<DTO>>
+    +string data_type
+    +Reading[] items
+  }
+  class Location {
+    <<DTO>>
+    +string id
+    +string name
+    +string slug
+    +latitude
+    +longitude
+  }
+  class Threshold {
+    <<DTO>>
+    +string id
+    +string location_id
+    +Metric metric
+    +Numeric threshold_value
+    +boolean is_active
+  }
+Reading <|-- AirReading : TypeScript intersection extension
+Series "1" o-- "0..*" Reading : items
+Location "1" -- "0..*" Threshold : location_id persisted FK

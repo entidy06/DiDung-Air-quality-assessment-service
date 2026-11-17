@@ -1,0 +1,22 @@
+flowchart TD
+  App["/app authenticated dashboard"]
+  Auth["SCR-05 authentication"]
+  Admin["/admin role shell"]
+  Forbidden["/forbidden"]
+  Landing["SCR-01 landing"]
+  App --> Air["SCR-02 current AQI + weather + advice<br/>UC-01 / UC-09 / UC-10"]
+  App --> Trend["SCR-03 forecast / history toggle<br/>partial UC-02 / UC-03 / UC-09 / UC-10"]
+  App --> Map["SCR-04 #app-map<br/>UC-03 / UC-09 / UC-10"]
+  App --> Thresholds["SCR-06 #app-thresholds<br/>UC-06; area selection is not UC-05"]
+  App --> Location["Shared active-location selector"]
+  Location -->|"selection changes resources"| Air
+  Location --> Trend
+  Location --> Thresholds
+  Map -->|"popup chooses area"| Location
+  App -->|"session check / no user"| Auth
+  App -->|"successful sign-out"| Landing
+  Admin -->|"successful sign-out"| Landing
+  Forbidden -->|"successful sign-out"| Landing
+  App -.-> States["Per-resource states:<br/>idle/loading, ready, empty, unauthorized, error<br/>stale labels where implemented"]
+  Map -.-> MapState["No token or map error:<br/>text guidance + shared selector"]
+  Thresholds -.-> Mutation["Validation / pending / success / failure<br/>no automatic evaluation on save"]

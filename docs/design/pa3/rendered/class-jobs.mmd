@@ -1,0 +1,31 @@
+classDiagram
+direction TB
+%% Detail panel: exact subset of ../class-diagram.mmd, not additional implementation.
+  class AirSyncRoute {
+    <<routeModule>>
+    +POST(request) Promise~Response~
+  }
+  class WeatherSyncRoute {
+    <<routeModule>>
+    +POST(request) Promise~Response~
+  }
+  class EvaluateAlertsRoute {
+    <<routeModule>>
+    +POST(request) Promise~Response~
+  }
+  class OpenMeteo {
+    <<module>>
+    +fetchAirQualityForLocations(locations, forecastDays) Promise~AirQualityResult[]~
+    +fetchWeatherForLocations(locations, forecastDays) Promise~WeatherResult[]~
+    +toUtcIso(openMeteoTime) string
+  }
+  class SupabaseClients {
+    <<moduleGroup>>
+    +createClient() SupabaseClient
+    +createAdminClient() SupabaseClient
+  }
+AirSyncRoute ..> OpenMeteo : fetchAirQualityForLocations
+WeatherSyncRoute ..> OpenMeteo : fetchWeatherForLocations
+AirSyncRoute ..> SupabaseClients : admin client and persistence
+WeatherSyncRoute ..> SupabaseClients : admin client and persistence
+EvaluateAlertsRoute ..> SupabaseClients : admin client and persistence

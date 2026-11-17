@@ -1,0 +1,29 @@
+flowchart TD
+  Entry["Open a route"] --> Gate{"Requested route and session"}
+  Gate -->|"anonymous /"| Landing["SCR-01 Landing - UC-15<br/>illustrative local data"]
+  Landing -->|"sign in / threshold prompt"| Auth["SCR-05 /auth - UC-04<br/>login or registration"]
+  Landing -->|"story / features / sources"| Chapters["Sections of same landing page"]
+  Chapters --> Landing
+  Gate -->|"anonymous /app or /admin"| Auth
+  Gate -->|"anonymous /forbidden"| Auth
+  Gate -->|"signed in / or /auth"| Role{"Role default"}
+  Auth -->|"password success / session from signup"| Complete["/auth?complete=1<br/>validate next path and role"]
+  Auth -->|"Google / email confirmation callback"| Callback["/auth/callback<br/>exchange code for session"]
+  Callback -->|"success"| Destination{"Safe authorized next<br/>or role default"}
+  Callback -->|"error"| AuthError["Auth error with retry guidance"]
+  AuthError --> Auth
+  Auth -->|"signup without session"| Confirm["Check confirmation email<br/>no dashboard success claimed"]
+  Confirm --> Auth
+  Complete --> Destination
+  Destination -->|"app path / user default"| App["/app authenticated dashboard"]
+  Destination -->|"admin path / admin default"| Admin["/admin placeholder shell"]
+  Destination -->|"other permitted internal path"| Entry
+  Role -->|"user"| App
+  Role -->|"admin"| Admin
+  Gate -->|"signed in /app - either role"| App
+  Gate -->|"signed in /admin"| AdminGate{"app_role exactly admin?"}
+  AdminGate -->|"yes"| Admin
+  AdminGate -->|"no"| Forbidden["/forbidden<br/>return to app or sign out"]
+  Gate -->|"signed in /forbidden"| AdminGate
+  Forbidden --> App
+  Admin -->|"View user site"| App
